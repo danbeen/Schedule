@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Morning Checklist</title>
+<style>
+    * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        padding: 0;
+        margin: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+    
+    .container {
+        max-width: 100%;
+        margin: 0;
+        padding: 20px;
+        padding-bottom: 80px;
+    }
+    
+    h1 {
+        text-align: center;
+        font-size: 32px;
+        color: white;
+        margin: 20px 0;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .nav-tabs {
+        display: flex;
+        background: rgba(255,255,255,0.2);
+        border-radius: 15px;
+        padding: 5px;
+        margin-bottom: 20px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .nav-tab {
+        flex: 1;
+        padding: 12px;
+        text-align: center;
+        border-radius: 10px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: none;
+        background: transparent;
+        font-size: 16px;
+    }
+    
+    .nav-tab.active {
+        background: white;
+        color: #667eea;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .tab-content {
+        display: none;
+    }
+    
+    .tab-content.active {
+        display: block;
+    }
+    
+    .week-selector {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+        gap: 15px;
+    }
+    
+    .week-selector button {
+        background: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .week-selector span {
+        color: white;
+        font-weight: 600;
+        font-size: 16px;
+        min-width: 150px;
+        text-align: center;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+    
+    td, th {
+        padding: 15px 8px;
+        border-bottom: 1px solid #f0f0f0;
+        text-align: center;
+    }
+    
+    th {
+        background: #667eea;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .task {
+        text-align: left;
+        font-weight: 600;
+        font-size: 16px;
+        padding-left: 15px;
+    }
+    
+    .task small {
+        display: block;
+        color: #888;
+        font-weight: 400;
+        margin-top: 3px;
+        font-size: 12px;
+    }
+    
+    .box {
+        width: 40px;
+        height: 40px;
+        border: 3px solid #ddd;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 28px;
+        user-select: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        background: white;
+    }
+    
+    .box:active {
+        transform: scale(0.95);
+    }
+    
+    .checked {
+        background: #4CAF50;
+        border-color: #4CAF50;
+        color: white;
+    }
+    
+    .stats-container {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+    
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+        color: white;
+    }
+    
+    .stat-card h3 {
+        margin: 0 0 10px 0;
+        font-size: 18px;
+        opacity: 0.9;
+    }
+    
+    .stat-number {
+        font-size: 36px;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+    
+    .stat-detail {
+        font-size: 14px;
+        opacity: 0.9;
+    }
+    
+    .progress-bar {
+        background: rgba(255,255,255,0.3);
+        height: 8px;
+        border-radius: 4px;
+        margin-top: 10px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        background: white;
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.3s;
+    }
+    
+    .task-breakdown {
+        margin-top: 20px;
+    }
+    
+    .task-stat {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        background: #f8f9fa;
+        margin-bottom: 8px;
+        border-radius: 8px;
+    }
+    
+    .task-stat-name {
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .task-stat-count {
+        font-weight: bold;
+        color: #667eea;
+        font-size: 16px;
+    }
+    
+    @media (max-width: 600px) {
+        th {
+            font-size: 12px;
+            padding: 12px 4px;
+        }
+        
+        .task {
+            font-size: 14px;
+            padding-left: 10px;
+        }
+        
+        .task small {
+            font-size: 11px;
+        }
+        
+        .box {
+            width: 36px;
+            height: 36px;
+            font-size: 24px;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🌅 Morning Checklist</h1>
+    
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('checklist')">Checklist</button>
+        <button class="nav-tab" onclick="switchTab('stats')">Statistics</button>
+    </div>
+    
+    <div id="checklist-tab" class="tab-content active">
+        <div class="week-selector">
+            <button onclick="changeWeek(-1)">◀</button>
+            <span id="week-display"></span>
+            <button onclick="changeWeek(1)">▶</button>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Mon</th>
+                    <th>Tue</th>
+                    <th>Wed</th>
+                    <th>Thu</th>
+                    <th>Fri</th>
+                </tr>
+            </thead>
+            <tbody id="checklist-body">
+                <tr data-task="make-bed">
+                    <td class="task">🛏️ Make Bed<br><small>6:40–6:45</small></td>
+                    <td><div class="box" data-day="0"></div></td>
+                    <td><div class="box" data-day="1"></div></td>
+                    <td><div class="box" data-day="2"></div></td>
+                    <td><div class="box" data-day="3"></div></td>
+                    <td><div class="box" data-day="4"></div></td>
+                </tr>
+                <tr data-task="get-dressed">
+                    <td class="task">👕 Get Dressed<br><small>6:45–6:50</small></td>
+                    <td><div class="box" data-day="0"></div></td>
+                    <td><div class="box" data-day="1"></div></td>
+                    <td><div class="box" data-day="2"></div></td>
+                    <td><div class="box" data-day="3"></div></td>
+                    <td><div class="box" data-day="4"></div></td>
+                </tr>
+                <tr data-task="breakfast">
+                    <td class="task">🍳 Breakfast<br><small>6:50–7:10</small></td>
+                    <td><div class="box" data-day="0"></div></td>
+                    <td><div class="box" data-day="1"></div></td>
+                    <td><div class="box" data-day="2"></div></td>
+                    <td><div class="box" data-day="3"></div></td>
+                    <td><div class="box" data-day="4"></div></td>
+                </tr>
+                <tr data-task="brush-teeth">
+                    <td class="task">🦷 Brush Teeth<br><small>7:10–7:15</small></td>
+                    <td><div class="box" data-day="0"></div></td>
+                    <td><div class="box" data-day="1"></div></td>
+                    <td><div class="box" data-day="2"></div></td>
+                    <td><div class="box" data-day="3"></div></td>
+                    <td><div class="box" data-day="4"></div></td>
+                </tr>
+                <tr data-task="sunscreen">
+                    <td class="task">🌞 Sunscreen<br><small>7:15–7:20</small></td>
+                    <td><div class="box" data-day="0"></div></td>
+                    <td><div class="box" data-day="1"></div></td>
+                    <td><div class="box" data-day="2"></div></td>
+                    <td><div class="box" data-day="3"></div></td>
+                    <td><div class="box" data-day="4"></div></td>
+                </tr>
+                <tr data-task="socks-shoes">
+                    <td class="task">👟 Socks & Shoes<br><small>7:20–7:23</small></td>
+                    <td><div class="box" data-day="0"></div></td>
+                    <td><div class="box" data-day="1"></div></td>
+                    <td><div class="box" data-day="2"></div></td>
+                    <td><div class="box" data-day="3"></div></td>
+                    <td><div class="box" data-day="4"></div></td>
+                </tr>
+                <tr data-task="final-check">
+                    <td class="task">🎒 Final Check<br><small>7:23–7:30</small></td>
+                    <td><div class="box" data-day="0"></div></td>
+                    <td><div class="box" data-day="1"></div></td>
+                    <td><div class="box" data-day="2"></div></td>
+                    <td><div class="box" data-day="3"></div></td>
+                    <td><div class="box" data-day="4"></div></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div id="stats-tab" class="tab-content">
+        <div class="stats-container">
+            <div class="stat-card">
+                <h3>Today's Progress</h3>
+                <div class="stat-number" id="today-count">0/7</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="today-progress" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>This Week</h3>
+                <div class="stat-number" id="week-count">0/35</div>
+                <div class="stat-detail" id="week-detail">0% complete</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="week-progress" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>This Month</h3>
+                <div class="stat-number" id="month-count">0</div>
+                <div class="stat-detail" id="month-detail">Total tasks completed</div>
+            </div>
+            
+            <div class="task-breakdown">
+                <h3 style="margin-bottom: 15px; color: #333;">Task Breakdown (This Month)</h3>
+                <div id="task-breakdown-list"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Task names for statistics
+const taskNames = {
+    'make-bed': '🛏️ Make Bed',
+    'get-dressed': '👕 Get Dressed',
+    'breakfast': '🍳 Breakfast',
+    'brush-teeth': '🦷 Brush Teeth',
+    'sunscreen': '🌞 Sunscreen',
+    'socks-shoes': '👟 Socks & Shoes',
+    'final-check': '🎒 Final Check'
+};
+
+let currentWeekOffset = 0;
+
+// Get Monday of current week offset
+function getMondayOfWeek(offset) {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Adjust for Sunday
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + diff + (offset * 7));
+    monday.setHours(0, 0, 0, 0);
+    return monday;
+}
+
+// Format date as YYYY-MM-DD
+function formatDate(date) {
+    return date.toISOString().split('T')[0];
+}
+
+// Get date key for storage
+function getDateKey(date, taskId) {
+    return `${formatDate(date)}_${taskId}`;
+}
+
+// Load saved state
+function loadState() {
+    const monday = getMondayOfWeek(currentWeekOffset);
+    
+    document.querySelectorAll('tr[data-task]').forEach(row => {
+        const taskId = row.getAttribute('data-task');
+        const boxes = row.querySelectorAll('.box');
+        
+        boxes.forEach((box, dayIndex) => {
+            const date = new Date(monday);
+            date.setDate(monday.getDate() + dayIndex);
+            const key = getDateKey(date, taskId);
+            const isChecked = localStorage.getItem(key) === 'true';
+            
+            if (isChecked) {
+                box.classList.add('checked');
+                box.innerHTML = "✓";
+            } else {
+                box.classList.remove('checked');
+                box.innerHTML = "";
+            }
+        });
+    });
+    
+    updateWeekDisplay();
+    updateStatistics();
+}
+
+// Save state
+function saveState(date, taskId, isChecked) {
+    const key = getDateKey(date, taskId);
+    localStorage.setItem(key, isChecked.toString());
+    updateStatistics();
+}
+
+// Update week display
+function updateWeekDisplay() {
+    const monday = getMondayOfWeek(currentWeekOffset);
+    const friday = new Date(monday);
+    friday.setDate(monday.getDate() + 4);
+    
+    const options = { month: 'short', day: 'numeric' };
+    const mondayStr = monday.toLocaleDateString('en-US', options);
+    const fridayStr = friday.toLocaleDateString('en-US', options);
+    
+    document.getElementById('week-display').textContent = `${mondayStr} - ${fridayStr}`;
+}
+
+// Change week
+function changeWeek(offset) {
+    currentWeekOffset += offset;
+    loadState();
+}
+
+// Switch tabs
+function switchTab(tabName) {
+    document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    
+    event.target.classList.add('active');
+    document.getElementById(`${tabName}-tab`).classList.add('active');
+    
+    if (tabName === 'stats') {
+        updateStatistics();
+    }
+}
+
+// Update statistics
+function updateStatistics() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = formatDate(today);
+    
+    // Get start of week (Monday)
+    const weekStart = getMondayOfWeek(0);
+    
+    // Get start of month
+    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+    
+    let todayChecked = 0;
+    let weekChecked = 0;
+    let monthChecked = 0;
+    const taskCounts = {};
+    
+    // Initialize task counts
+    Object.keys(taskNames).forEach(taskId => {
+        taskCounts[taskId] = 0;
+    });
+    
+    // Count checks
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && localStorage.getItem(key) === 'true') {
+            const [dateStr, taskId] = key.split('_');
+            const checkDate = new Date(dateStr);
+            
+            // Today
+            if (dateStr === todayStr) {
+                todayChecked++;
+            }
+            
+            // This week
+            if (checkDate >= weekStart && checkDate <= today) {
+                weekChecked++;
+            }
+            
+            // This month
+            if (checkDate >= monthStart && checkDate <= today) {
+                monthChecked++;
+                if (taskCounts.hasOwnProperty(taskId)) {
+                    taskCounts[taskId]++;
+                }
+            }
+        }
+    }
+    
+    // Update today stats
+    const totalTasks = 7;
+    const todayPercent = Math.round((todayChecked / totalTasks) * 100);
+    document.getElementById('today-count').textContent = `${todayChecked}/${totalTasks}`;
+    document.getElementById('today-progress').style.width = `${todayPercent}%`;
+    
+    // Update week stats
+    const weekDays = Math.min(5, Math.floor((today - weekStart) / (1000 * 60 * 60 * 24)) + 1);
+    const weekTotal = weekDays * totalTasks;
+    const weekPercent = weekTotal > 0 ? Math.round((weekChecked / weekTotal) * 100) : 0;
+    document.getElementById('week-count').textContent = `${weekChecked}/${weekTotal}`;
+    document.getElementById('week-detail').textContent = `${weekPercent}% complete`;
+    document.getElementById('week-progress').style.width = `${weekPercent}%`;
+    
+    // Update month stats
+    document.getElementById('month-count').textContent = monthChecked;
+    const daysInMonth = Math.floor((today - monthStart) / (1000 * 60 * 60 * 24)) + 1;
+    const workDaysInMonth = Math.floor(daysInMonth * 5 / 7); // Approximate weekdays
+    document.getElementById('month-detail').textContent = `${workDaysInMonth} work days tracked`;
+    
+    // Update task breakdown
+    const breakdownList = document.getElementById('task-breakdown-list');
+    breakdownList.innerHTML = '';
+    
+    Object.keys(taskNames).forEach(taskId => {
+        const div = document.createElement('div');
+        div.className = 'task-stat';
+        div.innerHTML = `
+            <span class="task-stat-name">${taskNames[taskId]}</span>
+            <span class="task-stat-count">${taskCounts[taskId]}</span>
+        `;
+        breakdownList.appendChild(div);
+    });
+}
+
+// Initialize click handlers
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.box').forEach(box => {
+        box.addEventListener('click', function() {
+            const row = this.closest('tr[data-task]');
+            const taskId = row.getAttribute('data-task');
+            const dayIndex = parseInt(this.getAttribute('data-day'));
+            
+            const monday = getMondayOfWeek(currentWeekOffset);
+            const date = new Date(monday);
+            date.setDate(monday.getDate() + dayIndex);
+            
+            this.classList.toggle('checked');
+            const isChecked = this.classList.contains('checked');
+            this.innerHTML = isChecked ? "✓" : "";
+            
+            saveState(date, taskId, isChecked);
+        });
+    });
+    
+    loadState();
+});
+</script>
+
+</body>
+</html>
