@@ -1104,6 +1104,36 @@ function updateWeekDisplay() {
     const fridayStr = friday.toLocaleDateString('en-US', options);
     
     document.getElementById('week-display').textContent = `${mondayStr} - ${fridayStr}`;
+    
+    // Update table headers with dates
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const headerRow = document.querySelector('thead tr');
+    const headers = headerRow.querySelectorAll('th');
+    
+    // Skip first header (Task column)
+    for (let i = 1; i < headers.length; i++) {
+        const dayDate = new Date(monday);
+        dayDate.setDate(monday.getDate() + (i - 1));
+        
+        const dayName = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'][i - 1];
+        const dateStr = dayDate.getDate();
+        
+        // Check if this is today
+        const isToday = dayDate.getTime() === today.getTime();
+        
+        headers[i].innerHTML = `${dayName}<br><small style="font-size: 11px; font-weight: 400;">${dateStr}</small>`;
+        
+        // Highlight today's column
+        if (isToday) {
+            headers[i].style.background = 'linear-gradient(135deg, #48dbfb 0%, #2ed573 100%)';
+            headers[i].style.color = 'white';
+        } else {
+            headers[i].style.background = 'linear-gradient(135deg, #0f3460 0%, #16213e 100%)';
+            headers[i].style.color = '#48dbfb';
+        }
+    }
 }
 
 // Change week
