@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+
+<html lang="en" style="background: #1a1a1a;">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Judah's Race Track</title>
+<style>
+    * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+```
+html {
+    background: #1a1a1a !important;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    padding: 0;
+    margin: 0;
+    background: #1a1a1a !important;
+    background: linear-gradient(180deg, #2c2c2c 0%, #1a1a1a 50%, #0a0a0a 100%) !important;
+    min-height: 100vh;
+    background-attachment: fixed;
+}
+
+.container {
+    max-width: 100%;
+    margin: 0;
+    padding: 20px;
+    padding-bottom: 80px;
+}
+
+h1 {
+    text-align: center;
+    font-size: 32px;
+    color: #ff4757;
+    margin: 20px 0;
+    text-shadow: 3px 3px 6px rgba(0,0,0,0.5), 0 0 20px rgba(255, 71, 87, 0.4), 0 0 40px rgba(255, 71, 87, 0.2);
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.nav-tabs {
+    display: flex;
+    background: rgba(44, 44, 44, 0.8);
+    border-radius: 15px;
+    padding: 5px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 71, 87, 0.3);
+}
+
+.nav-tab {
+    flex: 1;
+    padding: 12px;
+    text-align: center;
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+}
+
+.nav-tab.active {
+    background: white;
+    color: #1a1a1a;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.week-selector {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 15px;
+}
+
+.week-selector button {
+    background: rgba(255, 71, 87, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 15px rgba(255, 71, 87, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+}
+
+.week-selector span {
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    min-width: 150px;
+    text-align: center;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+td, th {
+    padding: 15px 8px;
+    border-bottom: 1px solid #f0f0f0;
+    text-align: center;
+}
+
+th {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
+    color: #ff4757;
+    font-weight: 600;
+    font-size: 14px;
+    border-bottom: 2px solid #ff4757;
+}
+
+.task {
+    text-align: left;
+    font-weight: 600;
+    font-size: 16px;
+    padding-left: 15px;
+}
+
+.task small {
+    display: block;
+    color: #888;
+    font-weight: 400;
+    margin-top: 3px;
+    font-size: 12px;
+}
+
+.task-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 4px;
+}
+
+.timer-btn {
+    width: 44px;
+    height: 32px;
+    border: 2px solid #ff4757;
+    border-radius: 6px;
+    background: white;
+    color: #1a1a1a;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timer-btn:active {
+    transform: scale(0.95);
+}
+
+.timer-btn.running {
+    background: #ff4757;
+    color: white;
+    border-color: #ff4757;
+    box-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
+}
+
+.timer-btn.finished {
+    background: #ffa502;
+    color: white;
+    border-color: #ffa502;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.timer-display {
+    font-size: 11px;
+    font-weight: 600;
+    color: #ff4757;
+    min-height: 16px;
+}
+
+.box {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 28px;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    background: white;
+}
+
+.box:active {
+    transform: scale(0.95);
+}
+
+.checked {
+    background: #ffa502;
+    border-color: #ffa502;
+    color: white;
+}
+
+.stats-container {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    color: white;
+    border: 2px solid rgba(255, 71, 87, 0.3);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+}
+
+.stat-card h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    opacity: 0.9;
+}
+
+.stat-number {
+    font-size: 36px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.stat-detail {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.progress-bar {
+    background: rgba(255,255,255,0.3);
+    height: 8px;
+    border-radius: 4px;
+    margin-top: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    background: white;
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s;
+}
+
+.task-breakdown {
+    margin-top: 20px;
+}
+
+.task-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: #f8f9fa;
+    margin-bottom: 8px;
+    border-radius: 8px;
+}
+
+.task-stat-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.task-stat-count {
+    font-weight: bold;
+    color: #ff4757;
+    font-size: 16px;
+}
+
+.task-record-item {
+    background: white;
+    border: 2px solid #f0f0f0;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 12px;
+}
+
+.task-record-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.task-record-name {
+    font-weight: 600;
+    font-size: 16px;
+    color: #333;
+}
+
+.task-record-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.record-stat {
+    text-align: center;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.record-stat-label {
+    font-size: 11px;
+    color: #666;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.record-stat-value {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ff4757;
+}
+
+.record-stat-value.best {
+    color: #ffa502;
+}
+
+.record-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+.record-badge.new-record {
+    background: #ffa502;
+    color: white;
+    animation: badgePulse 2s infinite;
+}
+
+.record-badge.faster {
+    background: #2ed573;
+    color: white;
+}
+
+.record-badge.slower {
+    background: #ff6348;
+    color: white;
+}
+
+@keyframes badgePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.last-time-display {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+}
+
+.timer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.timer-overlay.active {
+    display: flex;
+}
+
+.timer-overlay.minimized {
+    width: 120px;
+    height: 120px;
+    top: 20px;
+    right: 20px;
+    left: auto;
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    padding: 10px;
+    border: 2px solid #ff4757;
+}
+
+.timer-overlay.minimized .timer-task-name {
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.timer-overlay.minimized .timer-big-display {
+    font-size: 28px;
+}
+
+.timer-overlay.minimized .timer-controls {
+    flex-direction: column;
+    gap: 5px;
+}
+
+.timer-overlay.minimized .timer-control-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+}
+
+.timer-task-name {
+    color: white;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.timer-big-display {
+    color: #ff4757;
+    font-size: 96px;
+    font-weight: bold;
+    font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+    margin: 40px 0;
+    text-shadow: 4px 4px 8px rgba(0,0,0,0.5), 0 0 30px rgba(255, 71, 87, 0.6), 0 0 60px rgba(255, 71, 87, 0.3);
+    letter-spacing: 8px;
+}
+
+.timer-controls {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.timer-control-btn {
+    padding: 16px 32px;
+    font-size: 18px;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.timer-control-btn:active {
+    transform: scale(0.95);
+}
+
+.timer-control-btn.stop {
+    background: #ff4757;
+    color: white;
+}
+
+.timer-control-btn.minimize {
+    background: white;
+    color: #1a1a1a;
+}
+
+.timer-control-btn.maximize {
+    background: white;
+    color: #1a1a1a;
+}
+
+@media (max-width: 600px) {
+    th {
+        font-size: 12px;
+        padding: 12px 4px;
+    }
+    
+    .task {
+        font-size: 14px;
+        padding-left: 10px;
+    }
+    
+    .task small {
+        font-size: 11px;
+    }
+    
+    .box {
+        width: 36px;
+        height: 36px;
+        font-size: 24px;
+    }
+    
+    .timer-btn {
+        width: 40px;
+        height: 28px;
+        font-size: 10px;
+    }
+    
+    .timer-big-display {
+        font-size: 72px;
+        letter-spacing: 4px;
+    }
+    
+    .timer-task-name {
+        font-size: 20px;
+    }
+    
+    .timer-control-btn {
+        padding: 14px 24px;
+        font-size: 16px;
+    }
+}
+```
+
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🏎️ Judah's Race Track</h1>
+
+```
+<div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('checklist')">Checklist</button>
+    <button class="nav-tab" onclick="switchTab('stats')">Statistics</button>
+</div>
+
+<div id="checklist-tab" class="tab-content active">
+    <div class="week-selector">
+        <button onclick="changeWeek(-1)">◀</button>
+        <span id="week-display"></span>
+        <button onclick="changeWeek(1)">▶</button>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Task</th>
+                <th>Mon</th>
+                <th>Tue</th>
+                <th>Wed</th>
+                <th>Thu</th>
+                <th>Fri</th>
+            </tr>
+        </thead>
+        <tbody id="checklist-body">
+            <tr data-task="make-bed" data-duration="300">
+                <td class="task">🛏️ Make Bed<br><small>6:40–6:45 (5 min)</small></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="0">Start</button><div class="timer-display"></div><div class="box" data-day="0"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="1">Start</button><div class="timer-display"></div><div class="box" data-day="1"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="2">Start</button><div class="timer-display"></div><div class="box" data-day="2"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="3">Start</button><div class="timer-display"></div><div class="box" data-day="3"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="4">Start</button><div class="timer-display"></div><div class="box" data-day="4"></div></div></td>
+            </tr>
+            <tr data-task="get-dressed" data-duration="300">
+                <td class="task">👕 Get Dressed<br><small>6:45–6:50 (5 min)</small></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="0">Start</button><div class="timer-display"></div><div class="box" data-day="0"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="1">Start</button><div class="timer-display"></div><div class="box" data-day="1"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="2">Start</button><div class="timer-display"></div><div class="box" data-day="2"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="3">Start</button><div class="timer-display"></div><div class="box" data-day="3"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="4">Start</button><div class="timer-display"></div><div class="box" data-day="4"></div></div></td>
+            </tr>
+            <tr data-task="breakfast" data-duration="1200">
+                <td class="task">🍳 Breakfast<br><small>6:50–7:10 (20 min)</small></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="0">Start</button><div class="timer-display"></div><div class="box" data-day="0"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="1">Start</button><div class="timer-display"></div><div class="box" data-day="1"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="2">Start</button><div class="timer-display"></div><div class="box" data-day="2"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="3">Start</button><div class="timer-display"></div><div class="box" data-day="3"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="4">Start</button><div class="timer-display"></div><div class="box" data-day="4"></div></div></td>
+            </tr>
+            <tr data-task="brush-teeth" data-duration="300">
+                <td class="task">🦷 Brush Teeth<br><small>7:10–7:15 (5 min)</small></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="0">Start</button><div class="timer-display"></div><div class="box" data-day="0"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="1">Start</button><div class="timer-display"></div><div class="box" data-day="1"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="2">Start</button><div class="timer-display"></div><div class="box" data-day="2"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="3">Start</button><div class="timer-display"></div><div class="box" data-day="3"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="4">Start</button><div class="timer-display"></div><div class="box" data-day="4"></div></div></td>
+            </tr>
+            <tr data-task="sunscreen" data-duration="300">
+                <td class="task">🌞 Sunscreen<br><small>7:15–7:20 (5 min)</small></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="0">Start</button><div class="timer-display"></div><div class="box" data-day="0"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="1">Start</button><div class="timer-display"></div><div class="box" data-day="1"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="2">Start</button><div class="timer-display"></div><div class="box" data-day="2"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="3">Start</button><div class="timer-display"></div><div class="box" data-day="3"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="4">Start</button><div class="timer-display"></div><div class="box" data-day="4"></div></div></td>
+            </tr>
+            <tr data-task="socks-shoes" data-duration="180">
+                <td class="task">👟 Socks & Shoes<br><small>7:20–7:23 (3 min)</small></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="0">Start</button><div class="timer-display"></div><div class="box" data-day="0"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="1">Start</button><div class="timer-display"></div><div class="box" data-day="1"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="2">Start</button><div class="timer-display"></div><div class="box" data-day="2"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="3">Start</button><div class="timer-display"></div><div class="box" data-day="3"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="4">Start</button><div class="timer-display"></div><div class="box" data-day="4"></div></div></td>
+            </tr>
+            <tr data-task="final-check" data-duration="420">
+                <td class="task">🎒 Final Check<br><small>7:23–7:30 (7 min)</small></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="0">Start</button><div class="timer-display"></div><div class="box" data-day="0"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="1">Start</button><div class="timer-display"></div><div class="box" data-day="1"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="2">Start</button><div class="timer-display"></div><div class="box" data-day="2"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="3">Start</button><div class="timer-display"></div><div class="box" data-day="3"></div></div></td>
+                <td><div class="task-cell"><button class="timer-btn" data-day="4">Start</button><div class="timer-display"></div><div class="box" data-day="4"></div></div></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div id="stats-tab" class="tab-content">
+    <div class="stats-container">
+        <div class="stat-card">
+            <h3>Today's Progress</h3>
+            <div class="stat-number" id="today-count">0/7</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="today-progress" style="width: 0%"></div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <h3>This Week</h3>
+            <div class="stat-number" id="week-count">0/35</div>
+            <div class="stat-detail" id="week-detail">0% complete</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="week-progress" style="width: 0%"></div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <h3>This Month</h3>
+            <div class="stat-number" id="month-count">0</div>
+            <div class="stat-detail" id="month-detail">Total tasks completed</div>
+        </div>
+        
+        <div class="task-breakdown">
+            <h3 style="margin-bottom: 15px; color: #333;">Task Breakdown (This Month)</h3>
+            <div id="task-breakdown-list"></div>
+        </div>
+        
+        <div class="stat-card" style="background: linear-gradient(135deg, #ff4757 0%, #ffa502 100%); margin-top: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>🏁 Personal Records</h3>
+                <button onclick="resetRecords()" style="background: rgba(255,255,255,0.3); border: 2px solid white; color: white; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">Reset All</button>
+            </div>
+            <div id="records-summary" style="font-size: 14px; margin-top: 10px;">
+                <div style="margin: 5px 0;">Best times saved!</div>
+            </div>
+        </div>
+        
+        <div class="task-records" style="margin-top: 20px;">
+            <h3 style="margin-bottom: 15px; color: #333;">⏱️ Time Records by Task</h3>
+            <div id="task-records-list"></div>
+        </div>
+    </div>
+</div>
+```
+
+</div>
+
+<div id="timer-overlay" class="timer-overlay">
+    <div class="timer-task-name" id="timer-task-name"></div>
+    <div class="timer-big-display" id="timer-big-display">0:00</div>
+    <div class="timer-controls">
+        <button class="timer-control-btn stop" onclick="stopOverlayTimer()">Stop</button>
+        <button class="timer-control-btn minimize" id="minimize-btn" onclick="toggleMinimize()">Minimize</button>
+    </div>
+</div>
+
+<script>
+// Task names for statistics
+const taskNames = {
+    'make-bed': '🛏️ Make Bed',
+    'get-dressed': '👕 Get Dressed',
+    'breakfast': '🍳 Breakfast',
+    'brush-teeth': '🦷 Brush Teeth',
+    'sunscreen': '🌞 Sunscreen',
+    'socks-shoes': '👟 Socks & Shoes',
+    'final-check': '🎒 Final Check'
+};
+
+let currentWeekOffset = 0;
+let activeTimers = {};
+let currentOverlayTimer = null;
+let timerStartTime = null;
+
+// Simple alarm function using Web Audio API
+function playAlarm() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+        
+        // Play three beeps
+        setTimeout(() => {
+            const osc2 = audioContext.createOscillator();
+            const gain2 = audioContext.createGain();
+            osc2.connect(gain2);
+            gain2.connect(audioContext.destination);
+            osc2.frequency.value = 800;
+            osc2.type = 'sine';
+            gain2.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            osc2.start(audioContext.currentTime);
+            osc2.stop(audioContext.currentTime + 0.5);
+        }, 200);
+        
+        setTimeout(() => {
+            const osc3 = audioContext.createOscillator();
+            const gain3 = audioContext.createGain();
+            osc3.connect(gain3);
+            gain3.connect(audioContext.destination);
+            osc3.frequency.value = 800;
+            osc3.type = 'sine';
+            gain3.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gain3.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            osc3.start(audioContext.currentTime);
+            osc3.stop(audioContext.currentTime + 0.5);
+        }, 400);
+    } catch (e) {
+        // Audio play failed silently
+    }
+}
+
+// Save time record
+function saveTimeRecord(taskId, timeInSeconds) {
+    const records = JSON.parse(localStorage.getItem('timeRecords') || '{}');
+    
+    if (!records[taskId]) {
+        records[taskId] = {
+            times: [],
+            best: null,
+            average: null,
+            total: 0,
+            count: 0
+        };
+    }
+    
+    // Add new time
+    records[taskId].times.push({
+        time: timeInSeconds,
+        date: new Date().toISOString()
+    });
+    
+    // Keep only last 30 records per task
+    if (records[taskId].times.length > 30) {
+        records[taskId].times = records[taskId].times.slice(-30);
+    }
+    
+    // Calculate stats
+    const times = records[taskId].times.map(t => t.time);
+    records[taskId].best = Math.min(...times);
+    records[taskId].average = Math.round(times.reduce((a, b) => a + b, 0) / times.length);
+    records[taskId].count = times.length;
+    records[taskId].lastTime = timeInSeconds;
+    
+    localStorage.setItem('timeRecords', JSON.stringify(records));
+    
+    return {
+        isNewRecord: timeInSeconds === records[taskId].best,
+        wasFaster: records[taskId].count > 1 && timeInSeconds < records[taskId].average,
+        best: records[taskId].best,
+        average: records[taskId].average,
+        lastTime: records[taskId].lastTime
+    };
+}
+
+// Get time records
+function getTimeRecords() {
+    return JSON.parse(localStorage.getItem('timeRecords') || '{}');
+}
+
+// Reset all records
+function resetRecords() {
+    if (confirm('Are you sure you want to reset ALL time records? This cannot be undone!')) {
+        localStorage.removeItem('timeRecords');
+        updateStatistics();
+        alert('All records have been reset! 🏎️');
+    }
+}
+
+// Get Monday of current week offset
+function getMondayOfWeek(offset) {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + diff + (offset * 7));
+    monday.setHours(0, 0, 0, 0);
+    return monday;
+}
+
+// Format date as YYYY-MM-DD
+function formatDate(date) {
+    return date.toISOString().split('T')[0];
+}
+
+// Get date key for storage
+function getDateKey(date, taskId) {
+    return `${formatDate(date)}_${taskId}`;
+}
+
+// Format time for display
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Timer overlay functions
+function toggleMinimize() {
+    const overlay = document.getElementById('timer-overlay');
+    const minimizeBtn = document.getElementById('minimize-btn');
+    
+    if (overlay.classList.contains('minimized')) {
+        overlay.classList.remove('minimized');
+        minimizeBtn.textContent = 'Minimize';
+    } else {
+        overlay.classList.add('minimized');
+        minimizeBtn.textContent = 'Maximize';
+    }
+}
+
+function stopOverlayTimer() {
+    if (currentOverlayTimer) {
+        // Calculate time elapsed before stopping
+        if (timerStartTime) {
+            const actualTime = Math.round((Date.now() - timerStartTime) / 1000);
+            const taskId = currentOverlayTimer.taskId;
+            
+            // Save the time record
+            const performance = saveTimeRecord(taskId, actualTime);
+            
+            // Show a quick notification of the saved time
+            const overlay = document.getElementById('timer-overlay');
+            const bigDisplay = document.getElementById('timer-big-display');
+            const taskNameDisplay = document.getElementById('timer-task-name');
+            
+            bigDisplay.textContent = formatTime(actualTime);
+            taskNameDisplay.textContent = `✓ ${taskNames[taskId]} - Time saved: ${formatTime(actualTime)}`;
+            
+            // Brief pause to show the saved time
+            setTimeout(() => {
+                overlay.classList.remove('active', 'minimized');
+            }, 1500);
+        }
+        
+        clearInterval(currentOverlayTimer.interval);
+        delete activeTimers[currentOverlayTimer.timerKey];
+        timerStartTime = null;
+        currentOverlayTimer = null;
+    } else {
+        // No active timer, just hide overlay
+        const overlay = document.getElementById('timer-overlay');
+        overlay.classList.remove('active', 'minimized');
+    }
+    
+    // Reset all timer buttons
+    document.querySelectorAll('.timer-btn.running').forEach(btn => {
+        btn.textContent = 'Start';
+        btn.classList.remove('running');
+        const display = btn.closest('.task-cell').querySelector('.timer-display');
+        display.textContent = '';
+    });
+    
+    // Update statistics to show new record
+    updateStatistics();
+}
+
+// Timer functions
+function startTimer(button, duration, row, dayIndex) {
+    const taskId = row.getAttribute('data-task');
+    const taskName = taskNames[taskId];
+    const monday = getMondayOfWeek(currentWeekOffset);
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + dayIndex);
+    const timerKey = `${formatDate(date)}_${taskId}`;
+    
+    // Stop if already running
+    if (activeTimers[timerKey]) {
+        stopOverlayTimer();
+        return;
+    }
+    
+    const taskCell = button.closest('.task-cell');
+    const display = taskCell.querySelector('.timer-display');
+    
+    // Record start time
+    timerStartTime = Date.now();
+    
+    let timeLeft = duration;
+    let elapsed = 0;
+    button.textContent = 'Stop';
+    button.classList.add('running');
+    
+    // Show overlay
+    const overlay = document.getElementById('timer-overlay');
+    const bigDisplay = document.getElementById('timer-big-display');
+    const taskNameDisplay = document.getElementById('timer-task-name');
+    const minimizeBtn = document.getElementById('minimize-btn');
+    
+    overlay.classList.add('active');
+    overlay.classList.remove('minimized');
+    minimizeBtn.textContent = 'Minimize';
+    
+    // Get records for display
+    const records = getTimeRecords();
+    const taskRecords = records[taskId];
+    let recordInfo = '';
+    if (taskRecords && taskRecords.best) {
+        recordInfo = ` | 🏁 Best: ${formatTime(taskRecords.best)}`;
+    }
+    
+    taskNameDisplay.textContent = taskName + recordInfo;
+    bigDisplay.textContent = formatTime(timeLeft);
+    display.textContent = formatTime(timeLeft);
+    
+    const intervalId = setInterval(() => {
+        timeLeft--;
+        elapsed++;
+        bigDisplay.textContent = formatTime(timeLeft);
+        display.textContent = formatTime(timeLeft);
+        
+        if (timeLeft <= 0) {
+            clearInterval(intervalId);
+            delete activeTimers[timerKey];
+            currentOverlayTimer = null;
+            
+            // Calculate actual time taken
+            const actualTime = Math.round((Date.now() - timerStartTime) / 1000);
+            
+            // Save time record and get performance
+            const performance = saveTimeRecord(taskId, actualTime);
+            
+            // Show completion with performance badge
+            bigDisplay.textContent = formatTime(actualTime);
+            
+            let badgeText = '';
+            let badgeClass = '';
+            if (performance.isNewRecord) {
+                badgeText = '🏁 NEW RECORD!';
+                badgeClass = 'new-record';
+            } else if (performance.wasFaster) {
+                const saved = performance.average - actualTime;
+                badgeText = `⚡ ${saved}s faster than average!`;
+                badgeClass = 'faster';
+            } else if (performance.average && actualTime > performance.average) {
+                const slower = actualTime - performance.average;
+                badgeText = `🐌 ${slower}s slower than average`;
+                badgeClass = 'slower';
+            }
+            
+            taskNameDisplay.innerHTML = `✓ ${taskName} Complete! ${badgeText ? `<span class="record-badge ${badgeClass}">${badgeText}</span>` : ''}`;
+            display.textContent = '✓ ' + formatTime(actualTime);
+            
+            button.textContent = 'Done!';
+            button.classList.remove('running');
+            button.classList.add('finished');
+            
+            // Play alarm
+            playAlarm();
+            
+            // Vibrate if supported
+            if (navigator.vibrate) {
+                navigator.vibrate([200, 100, 200, 100, 200]);
+            }
+            
+            // Auto-hide overlay after 5 seconds to show results
+            setTimeout(() => {
+                overlay.classList.remove('active', 'minimized');
+                button.textContent = 'Start';
+                button.classList.remove('finished');
+                display.textContent = '';
+                updateStatistics();
+            }, 5000);
+        }
+    }, 1000);
+    
+    activeTimers[timerKey] = intervalId;
+    currentOverlayTimer = {
+        interval: intervalId,
+        timerKey: timerKey,
+        taskId: taskId
+    };
+}
+
+function stopTimer(timerKey) {
+    if (activeTimers[timerKey]) {
+        clearInterval(activeTimers[timerKey]);
+        delete activeTimers[timerKey];
+        
+        // Find and reset the button
+        document.querySelectorAll('.timer-btn.running').forEach(btn => {
+            const row = btn.closest('tr[data-task]');
+            const taskId = row.getAttribute('data-task');
+            const dayIndex = parseInt(btn.getAttribute('data-day'));
+            const monday = getMondayOfWeek(currentWeekOffset);
+            const date = new Date(monday);
+            date.setDate(monday.getDate() + dayIndex);
+            const key = `${formatDate(date)}_${taskId}`;
+            
+            if (key === timerKey) {
+                btn.textContent = 'Start';
+                btn.classList.remove('running');
+                const display = btn.closest('.task-cell').querySelector('.timer-display');
+                display.textContent = '';
+            }
+        });
+    }
+}
+
+// Load saved state
+function loadState() {
+    const monday = getMondayOfWeek(currentWeekOffset);
+    
+    document.querySelectorAll('tr[data-task]').forEach(row => {
+        const taskId = row.getAttribute('data-task');
+        const boxes = row.querySelectorAll('.box');
+        
+        boxes.forEach((box, dayIndex) => {
+            const date = new Date(monday);
+            date.setDate(monday.getDate() + dayIndex);
+            const key = getDateKey(date, taskId);
+            const isChecked = localStorage.getItem(key) === 'true';
+            
+            if (isChecked) {
+                box.classList.add('checked');
+                box.innerHTML = "✓";
+            } else {
+                box.classList.remove('checked');
+                box.innerHTML = "";
+            }
+        });
+    });
+    
+    updateWeekDisplay();
+    updateStatistics();
+}
+
+// Save state
+function saveState(date, taskId, isChecked) {
+    const key = getDateKey(date, taskId);
+    localStorage.setItem(key, isChecked.toString());
+    updateStatistics();
+}
+
+// Update week display
+function updateWeekDisplay() {
+    const monday = getMondayOfWeek(currentWeekOffset);
+    const friday = new Date(monday);
+    friday.setDate(monday.getDate() + 4);
+    
+    const options = { month: 'short', day: 'numeric' };
+    const mondayStr = monday.toLocaleDateString('en-US', options);
+    const fridayStr = friday.toLocaleDateString('en-US', options);
+    
+    document.getElementById('week-display').textContent = `${mondayStr} - ${fridayStr}`;
+    
+    // Update table headers with dates
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const headerRow = document.querySelector('thead tr');
+    const headers = headerRow.querySelectorAll('th');
+    
+    // Skip first header (Task column)
+    for (let i = 1; i < headers.length; i++) {
+        const dayDate = new Date(monday);
+        dayDate.setDate(monday.getDate() + (i - 1));
+        
+        const dayName = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'][i - 1];
+        const dateStr = dayDate.getDate();
+        
+        // Check if this is today
+        const isToday = dayDate.getTime() === today.getTime();
+        
+        headers[i].innerHTML = `${dayName}<br><small style="font-size: 11px; font-weight: 400;">${dateStr}</small>`;
+        
+        // Highlight today's column
+        if (isToday) {
+            headers[i].style.background = 'linear-gradient(135deg, #ff4757 0%, #ffa502 100%)';
+            headers[i].style.color = 'white';
+        } else {
+            headers[i].style.background = 'linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%)';
+            headers[i].style.color = '#ff4757';
+        }
+    }
+}
+
+// Change week
+function changeWeek(offset) {
+    currentWeekOffset += offset;
+    loadState();
+}
+
+// Switch tabs
+function switchTab(tabName) {
+    document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    
+    event.target.classList.add('active');
+    document.getElementById(`${tabName}-tab`).classList.add('active');
+    
+    if (tabName === 'stats') {
+        updateStatistics();
+    }
+}
+
+// Update statistics
+function updateStatistics() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = formatDate(today);
+    
+    const weekStart = getMondayOfWeek(0);
+    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+    
+    let todayChecked = 0;
+    let weekChecked = 0;
+    let monthChecked = 0;
+    const taskCounts = {};
+    
+    Object.keys(taskNames).forEach(taskId => {
+        taskCounts[taskId] = 0;
+    });
+    
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && localStorage.getItem(key) === 'true') {
+            const [dateStr, taskId] = key.split('_');
+            const checkDate = new Date(dateStr);
+            
+            if (dateStr === todayStr) {
+                todayChecked++;
+            }
+            
+            if (checkDate >= weekStart && checkDate <= today) {
+                weekChecked++;
+            }
+            
+            if (checkDate >= monthStart && checkDate <= today) {
+                monthChecked++;
+                if (taskCounts.hasOwnProperty(taskId)) {
+                    taskCounts[taskId]++;
+                }
+            }
+        }
+    }
+    
+    const totalTasks = 7;
+    const todayPercent = Math.round((todayChecked / totalTasks) * 100);
+    document.getElementById('today-count').textContent = `${todayChecked}/${totalTasks}`;
+    document.getElementById('today-progress').style.width = `${todayPercent}%`;
+    
+    const weekDays = Math.min(5, Math.floor((today - weekStart) / (1000 * 60 * 60 * 24)) + 1);
+    const weekTotal = weekDays * totalTasks;
+    const weekPercent = weekTotal > 0 ? Math.round((weekChecked / weekTotal) * 100) : 0;
+    document.getElementById('week-count').textContent = `${weekChecked}/${weekTotal}`;
+    document.getElementById('week-detail').textContent = `${weekPercent}% complete`;
+    document.getElementById('week-progress').style.width = `${weekPercent}%`;
+    
+    document.getElementById('month-count').textContent = monthChecked;
+    const daysInMonth = Math.floor((today - monthStart) / (1000 * 60 * 60 * 24)) + 1;
+    const workDaysInMonth = Math.floor(daysInMonth * 5 / 7);
+    document.getElementById('month-detail').textContent = `${workDaysInMonth} work days tracked`;
+    
+    const breakdownList = document.getElementById('task-breakdown-list');
+    breakdownList.innerHTML = '';
+    
+    Object.keys(taskNames).forEach(taskId => {
+        const div = document.createElement('div');
+        div.className = 'task-stat';
+        div.innerHTML = `
+            <span class="task-stat-name">${taskNames[taskId]}</span>
+            <span class="task-stat-count">${taskCounts[taskId]}</span>
+        `;
+        breakdownList.appendChild(div);
+    });
+    
+    // Update time records display
+    const records = getTimeRecords();
+    const recordsList = document.getElementById('task-records-list');
+    recordsList.innerHTML = '';
+    
+    let totalRecords = 0;
+    let totalBestTimes = 0;
+    
+    Object.keys(taskNames).forEach(taskId => {
+        const taskRecord = records[taskId];
+        
+        if (taskRecord && taskRecord.count > 0) {
+            totalRecords += taskRecord.count;
+            
+            const div = document.createElement('div');
+            div.className = 'task-record-item';
+            
+            const improvement = taskRecord.best && taskRecord.average ? 
+                Math.round(((taskRecord.average - taskRecord.best) / taskRecord.average) * 100) : 0;
+            
+            div.innerHTML = `
+                <div class="task-record-header">
+                    <span class="task-record-name">${taskNames[taskId]}</span>
+                    ${improvement > 0 ? `<span class="record-badge faster">${improvement}% improvement</span>` : ''}
+                </div>
+                <div class="task-record-stats">
+                    <div class="record-stat">
+                        <div class="record-stat-label">Best</div>
+                        <div class="record-stat-value best">${formatTime(taskRecord.best)}</div>
+                    </div>
+                    <div class="record-stat">
+                        <div class="record-stat-label">Average</div>
+                        <div class="record-stat-value">${formatTime(taskRecord.average)}</div>
+                    </div>
+                    <div class="record-stat">
+                        <div class="record-stat-label">Times</div>
+                        <div class="record-stat-value">${taskRecord.count}</div>
+                    </div>
+                </div>
+                ${taskRecord.lastTime ? `<div class="last-time-display">Last: ${formatTime(taskRecord.lastTime)}</div>` : ''}
+            `;
+            recordsList.appendChild(div);
+            
+            if (taskRecord.best) totalBestTimes++;
+        }
+    });
+    
+    // Update records summary
+    const recordsSummary = document.getElementById('records-summary');
+    if (totalRecords > 0) {
+        recordsSummary.innerHTML = `
+            <div style="margin: 5px 0;">📊 ${totalRecords} timed completions</div>
+            <div style="margin: 5px 0;">🏁 ${totalBestTimes} personal bests set</div>
+        `;
+    } else {
+        recordsSummary.innerHTML = `<div style="margin: 5px 0;">Start using timers to track your records!</div>`;
+    }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    // Timer button handlers
+    document.querySelectorAll('.timer-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const row = this.closest('tr[data-task]');
+            const duration = parseInt(row.getAttribute('data-duration'));
+            const dayIndex = parseInt(this.getAttribute('data-day'));
+            startTimer(this, duration, row, dayIndex);
+        });
+    });
+    
+    // Checkbox handlers
+    document.querySelectorAll('.box').forEach(box => {
+        box.addEventListener('click', function() {
+            const row = this.closest('tr[data-task]');
+            const taskId = row.getAttribute('data-task');
+            const dayIndex = parseInt(this.getAttribute('data-day'));
+            
+            const monday = getMondayOfWeek(currentWeekOffset);
+            const date = new Date(monday);
+            date.setDate(monday.getDate() + dayIndex);
+            
+            this.classList.toggle('checked');
+            const isChecked = this.classList.contains('checked');
+            this.innerHTML = isChecked ? "✓" : "";
+            
+            saveState(date, taskId, isChecked);
+        });
+    });
+    
+    loadState();
+});
+</script>
+
+</body>
+</html>
