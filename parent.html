@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Parent Dashboard – Morning Checklist</title>
+  <link rel="stylesheet" href="css/morning-v2.css?v=20260308c">
+</head>
+<body class="morning-v2 parent-dash">
+  <div class="container">
+    <h1 style="margin: 0 0 8px 0; font-size: 22px; color: #0f3460;">Parent Dashboard</h1>
+    <p style="margin: 0 0 16px 0; font-size: 14px; color: #666;">Configure tasks, rewards, and rate today’s morning.</p>
+
+    <div class="nav-tabs">
+      <button type="button" class="nav-tab active" data-tab="today">Today</button>
+      <button type="button" class="nav-tab" data-tab="week">This Week</button>
+      <button type="button" class="nav-tab" data-tab="rewards">Rewards</button>
+      <button type="button" class="nav-tab" data-tab="tasks">Tasks</button>
+      <button type="button" class="nav-tab" data-tab="settings">Settings</button>
+      <button type="button" class="nav-tab" data-tab="history">History</button>
+    </div>
+
+    <div id="tab-today" class="tab-content active">
+      <div class="card" id="household-card">
+        <h3>Household code</h3>
+        <p class="household-code-hint">Share this code with each child device so they can sync. Each kid opens their own link below.</p>
+        <div class="household-code-box" id="household-code-display">——</div>
+      </div>
+      <div id="today-per-child"></div>
+      <div class="card">
+        <h3>Open child view</h3>
+        <p style="font-size: 13px; color: #666; margin-bottom: 8px;">Send the right link to each device (or use the dedicated pages):</p>
+        <a href="kaia.html" class="child-link" style="display: inline-block; margin-right: 12px;">Kaia’s checklist</a>
+        <a href="judah.html" class="child-link" style="display: inline-block;">Judah’s checklist</a>
+        <p style="font-size: 12px; color: #888; margin-top: 6px;">Same as <a href="child.html?kid=kaia">child.html?kid=kaia</a> / <a href="child.html?kid=judah">child.html?kid=judah</a></p>
+        <p style="font-size: 12px; color: #888; margin-top: 12px;">See what a late morning looks like (Behind, suggestion):</p>
+        <a href="child.html?kid=kaia&preview=7:05" class="child-link secondary" style="display: inline-block; margin-right: 8px;">Preview Kaia at 7:05</a>
+        <a href="child.html?kid=judah&preview=7:05" class="child-link secondary" style="display: inline-block;">Preview Judah at 7:05</a>
+      </div>
+      <div class="card">
+        <h3>Preview week flow (see full week till reward)</h3>
+        <p style="font-size: 13px; color: #666; margin-bottom: 12px;">Open the child view as if it were each day of <strong>this week</strong>. Use <strong>Seed demo week</strong> first to add 6 points per day for Mon–Fri (30 total). Then open the <strong>Fri</strong> link for that same week—you should see 30 points and a jar filling. (Jar needs 35 points to be full by default; change in Settings if you want 30.)</p>
+        <p style="font-size: 12px; margin-bottom: 8px;"><strong>Kaia:</strong> <span id="preview-week-links-kaia"></span></p>
+        <p style="font-size: 12px; margin-bottom: 12px;"><strong>Judah:</strong> <span id="preview-week-links-judah"></span></p>
+        <p style="font-size: 12px; color: #888;">Seed demo week (adds 6 pts for Mon–Fri for current week):</p>
+        <button type="button" class="seed-demo-btn" data-child="kaia">Seed demo week (Kaia)</button>
+        <button type="button" class="seed-demo-btn" data-child="judah">Seed demo week (Judah)</button>
+      </div>
+    </div>
+
+    <div id="tab-week" class="tab-content">
+      <div class="card">
+        <h3>This week</h3>
+        <p style="font-size: 12px; color: #666; margin-bottom: 12px;">Weekly score is Mon–Sun and resets next Monday. Kids earn up to 7 pts/day from tasks. Parents can add or take away bonus points on top. Unclaimed jars: no limit—they can bank as many full jars as they earn.</p>
+        <p id="week-threshold" style="margin-bottom: 12px;">Unlock threshold: --</p>
+        <div id="week-per-child"></div>
+      </div>
+      <div class="card">
+        <h3>Daily breakdown</h3>
+        <div id="week-daily-list"></div>
+      </div>
+      <div class="card">
+        <h3>Recent claims</h3>
+        <p style="font-size: 12px; color: #666; margin-bottom: 8px;">When a child taps a jar and picks a reward (or “Save for a big prize”), it syncs here.</p>
+        <div id="recent-claims-display"></div>
+      </div>
+    </div>
+
+    <div id="tab-rewards" class="tab-content">
+      <div class="card">
+        <h3>This week’s choices</h3>
+        <p style="font-size: 13px; color: #666; margin-bottom: 8px;">Choices are set automatically when the week changes (5 small + 1 big per child; claimed rewards excluded for 1 month; big prize different for each kid). Tweak any choice below if you want.</p>
+        <button type="button" id="btn-randomise-rewards" class="secondary">Re-randomise this week</button>
+        <div id="active-rewards-tweak" style="margin-top: 12px;"></div>
+      </div>
+      <div class="card">
+        <h3>Kaia – small prizes (weekly)</h3>
+        <ul id="rewards-kaia-small" style="list-style: none; padding: 0; margin: 0;"></ul>
+        <label>Add small prize</label>
+        <input type="text" id="new-kaia-small" placeholder="e.g. 10 mins extra iPad">
+        <button type="button" class="btn-add-reward" data-child="kaia" data-type="small">Add</button>
+      </div>
+      <div class="card">
+        <h3>Kaia – big prizes</h3>
+        <ul id="rewards-kaia-big" style="list-style: none; padding: 0; margin: 0;"></ul>
+        <label>Add big prize</label>
+        <input type="text" id="new-kaia-big" placeholder="e.g. Choose dinner out Sat night">
+        <button type="button" class="btn-add-reward" data-child="kaia" data-type="big">Add</button>
+      </div>
+      <div class="card">
+        <h3>Judah – small prizes (weekly)</h3>
+        <ul id="rewards-judah-small" style="list-style: none; padding: 0; margin: 0;"></ul>
+        <label>Add small prize</label>
+        <input type="text" id="new-judah-small" placeholder="e.g. 10 mins extra iPad">
+        <button type="button" class="btn-add-reward" data-child="judah" data-type="small">Add</button>
+      </div>
+      <div class="card">
+        <h3>Judah – big prizes</h3>
+        <ul id="rewards-judah-big" style="list-style: none; padding: 0; margin: 0;"></ul>
+        <label>Add big prize</label>
+        <input type="text" id="new-judah-big" placeholder="e.g. Choose dinner out Sat night">
+        <button type="button" class="btn-add-reward" data-child="judah" data-type="big">Add</button>
+      </div>
+    </div>
+
+    <div id="tab-tasks" class="tab-content">
+      <div class="card">
+        <h3>Tasks per child</h3>
+        <p style="font-size: 13px; color: #666; margin-bottom: 12px;">Kaia and Judah each have their own checklist. Set tasks and durations (minutes) here—these are what the runway and “time left” use. When you’re happy, click <strong>Publish</strong> so they see the updated list.</p>
+        <div class="nav-tabs" style="margin-bottom: 12px;">
+          <button type="button" class="nav-tab active" data-task-child="kaia">Kaia’s tasks</button>
+          <button type="button" class="nav-tab" data-task-child="judah">Judah’s tasks</button>
+        </div>
+        <div id="tasks-kaia" class="tasks-child-panel">
+          <div class="tasks-panel-header">
+            <h4 style="margin: 0 0 8px 0;">Kaia’s checklist</h4>
+            <button type="button" class="publish-btn" data-publish-child="kaia">Publish to Kaia</button>
+            <span class="publish-status" id="publish-status-kaia"></span>
+          </div>
+          <ul id="tasks-list-kaia" style="list-style: none; padding: 0; margin: 0;"></ul>
+          <label>New task</label>
+          <input type="text" id="new-task-label-kaia" placeholder="e.g. Pack bag">
+          <input type="number" id="new-task-duration-kaia" min="1" value="5" style="width: 70px;"> min
+          <button type="button" class="btn-add-task" data-child="kaia">Add</button>
+        </div>
+        <div id="tasks-judah" class="tasks-child-panel" style="display: none;">
+          <div class="tasks-panel-header">
+            <h4 style="margin: 0 0 8px 0;">Judah’s checklist</h4>
+            <button type="button" class="publish-btn" data-publish-child="judah">Publish to Judah</button>
+            <span class="publish-status" id="publish-status-judah"></span>
+          </div>
+          <ul id="tasks-list-judah" style="list-style: none; padding: 0; margin: 0;"></ul>
+          <label>New task</label>
+          <input type="text" id="new-task-label-judah" placeholder="e.g. Pack bag">
+          <input type="number" id="new-task-duration-judah" min="1" value="5" style="width: 70px;"> min
+          <button type="button" class="btn-add-task" data-child="judah">Add</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-settings" class="tab-content">
+      <div class="card">
+        <h3>Settings</h3>
+        <label>Target finish time</label>
+        <input type="time" id="setting-target-time" value="07:30">
+        <label>Weekly unlock threshold (points)</label>
+        <input type="number" id="setting-threshold" min="1" value="30">
+        <label>Jars needed for big prize</label>
+        <input type="number" id="setting-big-prize-jars" min="1" max="20" value="3" title="When they choose &quot;Save for a big prize&quot; this many times, they can pick a big prize.">
+        <label>Time-left bonus</label>
+        <select id="setting-time-bonus">
+          <option value="true">Enabled</option>
+          <option value="false">Disabled</option>
+        </select>
+        <button type="button" id="save-settings">Save settings</button>
+      </div>
+      <div class="card">
+        <h3>Reset prizes &amp; jar state (for testing)</h3>
+        <p style="font-size: 12px; color: #666; margin-bottom: 10px;">Use these when re-testing. Data is stored <strong>per child</strong> (Kaia and Judah separately). Always open the child view via the links (e.g. <strong>Kaia’s checklist</strong> or the Fri link under Kaia) so you see that child’s data.</p>
+        <p style="font-size: 12px; margin-bottom: 8px;"><strong>Kaia:</strong></p>
+        <div class="btn-group" style="margin-bottom: 12px;">
+          <button type="button" class="secondary reset-prizes-btn" data-child="kaia" data-action="saved">Reset saved-for-big-prize</button>
+          <button type="button" class="secondary reset-prizes-btn" data-child="kaia" data-action="jar">Reset jar state</button>
+          <button type="button" class="secondary reset-prizes-btn" data-child="kaia" data-action="claims">Clear claim history</button>
+        </div>
+        <p style="font-size: 12px; margin-bottom: 8px;"><strong>Judah:</strong></p>
+        <div class="btn-group">
+          <button type="button" class="secondary reset-prizes-btn" data-child="judah" data-action="saved">Reset saved-for-big-prize</button>
+          <button type="button" class="secondary reset-prizes-btn" data-child="judah" data-action="jar">Reset jar state</button>
+          <button type="button" class="secondary reset-prizes-btn" data-child="judah" data-action="claims">Clear claim history</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-history" class="tab-content">
+      <div class="card">
+        <h3>Past weeks</h3>
+        <ul id="history-list" style="list-style: none; padding: 0; margin: 0;"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/morning-v2.js?v=20260308c"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>window.MORNING_V2_SUPABASE = window.MORNING_V2_SUPABASE || {};</script>
+  <script src="js/sync.js"></script>
+  <script>
+    const M = window.MorningV2;
+    const Sync = window.MorningV2Sync;
+
+    function todayKey() { return M.getTodayKey(); }
+
+    function pushSync() {
+      if (Sync && Sync.isConfigured() && Sync.getHouseholdId()) {
+        Sync.saveToSupabase();
+      }
+    }
+
+    function updateHouseholdCode() {
+      var el = document.getElementById('household-code-display');
+      var card = document.getElementById('household-card');
+      if (!el || !card) return;
+      if (Sync && Sync.isConfigured()) {
+        var id = Sync.ensureHouseholdId();
+        el.textContent = id || '——';
+        card.style.display = 'block';
+      } else {
+        card.style.display = 'none';
+      }
+    }
+
+    function renderToday() {
+      var today = todayKey();
+      var container = document.getElementById('today-per-child');
+      if (!container) return;
+      container.innerHTML = '';
+      M.CHILD_IDS.forEach(function (cid) {
+        var record = M.getDailyRecord(cid, today);
+        var completed = M.getCompletedTaskIds(cid, today);
+        var tasks = M.getTasks(cid).filter(function (t) { return t.core; });
+        var score = M.getDailyScore(cid, today);
+        var timeBonus = M.getTimeLeftBonus(cid, today);
+        var name = M.CHILD_NAMES[cid];
+        var card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML =
+          '<h3>' + name + '</h3>' +
+          '<p class="today-summary">' + completed.length + ' / ' + tasks.length + ' tasks completed.</p>' +
+          '<p class="today-score">Daily score: ' + score + '</p>' +
+          '<p class="time-bonus">Time-left bonus: ' + timeBonus + '</p>' +
+          '<h4 style="font-size: 14px; margin-top: 12px;">Rate this morning</h4>' +
+          '<div class="btn-group rating-buttons" data-child="' + cid + '">' +
+          '<button type="button" data-rating="0">Rough</button>' +
+          '<button type="button" data-rating="1">Okay</button>' +
+          '<button type="button" data-rating="2">Good</button>' +
+          '<button type="button" data-rating="3">Great</button>' +
+          '</div>' +
+          '<p class="rating-value" style="font-size: 13px; color: #666; margin-top: 6px;"></p>' +
+          '<h4 style="font-size: 14px; margin-top: 12px;">Manual bonus</h4>' +
+          '<p style="font-size: 12px; color: #666; margin-bottom: 6px;">Add or subtract points (e.g. rough morning: -1 or -2).</p>' +
+          '<div class="btn-group manual-buttons" data-child="' + cid + '">' +
+          '<button type="button" class="manual-minus" data-add="-1">-1</button>' +
+          '<button type="button" class="manual-minus" data-add="-2">-2</button>' +
+          '<button type="button" class="manual-minus" data-add="-3">-3</button>' +
+          '<button type="button" data-add="1">+1</button>' +
+          '<button type="button" data-add="2">+2</button>' +
+          '<button type="button" data-add="3">+3</button>' +
+          '</div>' +
+          '<p class="manual-value" style="font-size: 13px; margin-top: 6px;"></p>' +
+          '<button type="button" class="reset-today-btn secondary" data-child="' + cid + '">Reset today</button>';
+        card.querySelector('.rating-value').textContent =
+          record.parentRating != null ? 'Current: ' + ['Rough', 'Okay', 'Good', 'Great'][record.parentRating] : '';
+        card.querySelector('.manual-value').textContent = 'Manual bonus today: ' + (record.manualBonus || 0);
+        card.querySelectorAll('.rating-buttons button').forEach(function (btn) {
+          var v = parseInt(btn.getAttribute('data-rating'), 10);
+          if (record.parentRating === v) btn.classList.add('active'); else btn.classList.remove('active');
+          btn.addEventListener('click', function () {
+            setRating(cid, v);
+          });
+        });
+        card.querySelectorAll('.manual-buttons button').forEach(function (btn) {
+          var n = parseInt(btn.getAttribute('data-add'), 10);
+          btn.addEventListener('click', function () {
+            addManualBonus(cid, n);
+          });
+        });
+        card.querySelector('.reset-today-btn').addEventListener('click', function () {
+          if (confirm('Clear all tasks, rating, and bonus for ' + name + ' today? The checklist will show as not done.')) {
+            resetToday(cid);
+          }
+        });
+        container.appendChild(card);
+      });
+      renderPreviewWeekLinks();
+    }
+
+    function renderPreviewWeekLinks() {
+      var weekKey = M.getWeekKey(todayKey());
+      var dates = M.getWeekDates(weekKey);
+      var dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      function linksForChild(cid) {
+        return dates.map(function (dateKey, i) {
+          var d = new Date(dateKey + 'T12:00:00');
+          var short = (d.getMonth() + 1) + '/' + d.getDate();
+          return '<a href="child.html?kid=' + cid + '&preview=' + dateKey + '" class="child-link secondary" style="margin-right: 6px;">' + dayLabels[i] + ' ' + short + '</a>';
+        }).join('');
+      }
+      var kaiaEl = document.getElementById('preview-week-links-kaia');
+      var judahEl = document.getElementById('preview-week-links-judah');
+      if (kaiaEl) kaiaEl.innerHTML = linksForChild('kaia');
+      if (judahEl) judahEl.innerHTML = linksForChild('judah');
+    }
+
+    function seedDemoWeek(childId) {
+      var weekKey = M.getWeekKey(todayKey());
+      var dates = M.getWeekDates(weekKey);
+      // Reset jar state so old claimedThisWeek / jarBank don't interfere
+      M.resetJarState(childId);
+      var settings = M.getSettings();
+      var threshold = settings.weeklyUnlockThreshold || 35;
+      // Seed Mon–Thu at daily cap (7) so progress jar opens at (4×7)/threshold on Friday.
+      // Leave Friday at 0 so clicking DONE on the Fri preview actually fills the jar.
+      var cap = M.DAILY_POINTS_CAP || 7;
+      for (var i = 0; i < 4; i++) {
+        M.saveDailyRecord(childId, dates[i], { tasksCompleted: {}, parentRating: null, manualBonus: cap });
+      }
+      // Friday: clear / zero so the user can earn points by clicking DONE
+      M.saveDailyRecord(childId, dates[4], { tasksCompleted: {}, parentRating: null, manualBonus: 0 });
+      pushSync();
+      var monToThu = 4 * cap;
+      alert('Done! Reset jar state for ' + (M.CHILD_NAMES[childId] || childId) + '.\n' +
+            'Mon–Thu seeded at ' + cap + ' pts each (' + monToThu + ' pts, threshold=' + threshold + ').\n' +
+            'Friday left at 0 — open the Fri link, then click DONE to watch the jar fill!\n' +
+            'Mon=' + (dates[0] || '') + ', Fri=' + (dates[4] || ''));
+    }
+
+    function setRating(childId, value) {
+      var record = M.getDailyRecord(childId, todayKey());
+      record.parentRating = value;
+      M.saveDailyRecord(childId, todayKey(), record);
+      renderToday();
+      pushSync();
+    }
+
+    function addManualBonus(childId, n) {
+      var record = M.getDailyRecord(childId, todayKey());
+      record.manualBonus = (record.manualBonus || 0) + n;
+      M.saveDailyRecord(childId, todayKey(), record);
+      renderToday();
+      pushSync();
+    }
+
+    function resetToday(childId) {
+      M.saveDailyRecord(childId, todayKey(), { tasksCompleted: {}, parentRating: null, manualBonus: 0 });
+      renderToday();
+      pushSync();
+    }
+
+    function renderWeek() {
+      var weekKey = M.getWeekKey(todayKey());
+      var settings = M.getSettings();
+
+      document.getElementById('week-threshold').textContent = 'Unlock threshold: ' + settings.weeklyUnlockThreshold;
+
+      var perChild = document.getElementById('week-per-child');
+      perChild.innerHTML = '';
+      var active = M.getRewardsActive();
+      var currentWeekKey = M.getWeekKey(todayKey());
+      M.CHILD_IDS.forEach(function (cid) {
+        var score = M.getWeeklyScore(cid, weekKey);
+        var name = M.CHILD_NAMES[cid];
+        var block = document.createElement('div');
+        block.style.marginBottom = '16px';
+        var activeText = '';
+        if (active && active.weekKey === currentWeekKey && active[cid]) {
+          var small = (active[cid].small || []).join(', ');
+          var big = active[cid].big || '';
+          activeText = '<p style="font-size: 12px; color: #666; margin: 4px 0 0 0;">This week: ' + (small ? '5 small' : '—') + (big ? ', big: ' + big : '') + '</p>';
+        }
+        block.innerHTML =
+          '<h4 style="margin: 0 0 6px 0;">' + name + '</h4>' +
+          '<p style="margin: 0 0 4px 0;">Weekly score: ' + score + ' (max ' + (7 * 7) + ' pts from tasks this week; parents can add bonus pts on top)</p>' + activeText +
+          '<button type="button" class="secondary reset-week-btn" data-child="' + cid + '" style="margin-top: 8px;">Reset this week’s points</button>';
+        block.querySelector('.reset-week-btn').addEventListener('click', function () {
+          if (!confirm('Clear all points for ' + name + ' for this week (Mon–Sun)? Jars already banked stay.')) return;
+          var dates = M.getWeekDates(weekKey);
+          dates.forEach(function (dk) {
+            M.saveDailyRecord(cid, dk, { tasksCompleted: {}, parentRating: null, manualBonus: 0 });
+          });
+          pushSync();
+          renderWeek();
+          renderToday();
+        });
+        perChild.appendChild(block);
+      });
+
+      var listEl = document.getElementById('week-daily-list');
+      listEl.innerHTML = '';
+      var weekDates = M.getWeekDates(weekKey);
+      weekDates.forEach(function (dk) {
+        var row = document.createElement('p');
+        row.style.padding = '6px 0';
+        row.style.borderBottom = '1px solid #eee';
+        var parts = M.CHILD_IDS.map(function (cid) {
+          return M.CHILD_NAMES[cid] + ': ' + M.getDailyScore(cid, dk) + ' pts';
+        });
+        row.textContent = dk + ' — ' + parts.join(', ');
+        listEl.appendChild(row);
+      });
+
+      var claimsEl = document.getElementById('recent-claims-display');
+      if (claimsEl) {
+        var claimsHtml = [];
+        M.CHILD_IDS.forEach(function (cid) {
+          var name = M.CHILD_NAMES[cid];
+          var history = (M.getClaimHistory(cid) || []).slice(-10).reverse();
+          if (history.length === 0) {
+            claimsHtml.push('<p style="margin: 0 0 6px 0; font-size: 13px;"><strong>' + name + '</strong>: —</p>');
+          } else {
+            history.forEach(function (entry) {
+              var dateStr = '';
+              try {
+                var d = new Date(entry.at);
+                dateStr = d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+              } catch (e) {}
+              claimsHtml.push('<p style="margin: 0 0 4px 0; font-size: 13px;"><strong>' + name + '</strong>: ' + (entry.choice || '') + (dateStr ? ' (' + dateStr + ')' : '') + '</p>');
+            });
+          }
+        });
+        claimsEl.innerHTML = claimsHtml.length ? claimsHtml.join('') : '<p style="color: #666; font-size: 13px;">No claims yet.</p>';
+      }
+    }
+
+    function renderRewards() {
+      var active = M.ensureActiveRewardsForWeek();
+      var config = M.getRewardsConfig();
+      var weekKey = M.getWeekKey(todayKey());
+      var tweakEl = document.getElementById('active-rewards-tweak');
+      if (tweakEl && active && active.weekKey === weekKey) {
+        tweakEl.innerHTML = '';
+        M.CHILD_IDS.forEach(function (cid) {
+          var name = M.CHILD_NAMES[cid];
+          var small = (active[cid] && active[cid].small) ? active[cid].small : [];
+          var big = (active[cid] && active[cid].big) ? active[cid].big : '';
+          var poolSmall = (config[cid] && config[cid].small) ? config[cid].small : [];
+          var poolBig = (config[cid] && config[cid].big) ? config[cid].big : [];
+          var block = document.createElement('div');
+          block.style.marginBottom = '16px';
+          block.innerHTML = '<strong>' + name + '</strong>';
+          for (var i = 0; i < 5; i++) {
+            var cur = small[i] || '';
+            var sel = document.createElement('select');
+            sel.style.marginLeft = '8px';
+            sel.style.marginTop = '4px';
+            sel.setAttribute('data-child', cid);
+            sel.setAttribute('data-type', 'small');
+            sel.setAttribute('data-index', String(i));
+            if (cur && poolSmall.indexOf(cur) === -1) {
+              var o0 = document.createElement('option');
+              o0.value = cur;
+              o0.textContent = cur;
+              o0.selected = true;
+              sel.appendChild(o0);
+            }
+            poolSmall.forEach(function (opt) {
+              var o = document.createElement('option');
+              o.value = opt;
+              o.textContent = opt;
+              if (opt === cur) o.selected = true;
+              sel.appendChild(o);
+            });
+            sel.addEventListener('change', function () {
+              var c = this.getAttribute('data-child');
+              var idx = parseInt(this.getAttribute('data-index'), 10);
+              M.setActiveRewardItem(c, 'small', idx, this.value);
+              pushSync();
+              renderRewards();
+            });
+            var row = document.createElement('p');
+            row.style.margin = '2px 0';
+            row.appendChild(document.createTextNode('Small ' + (i + 1) + ': '));
+            row.appendChild(sel);
+            block.appendChild(row);
+          }
+          var selBig = document.createElement('select');
+          selBig.style.marginLeft = '8px';
+          selBig.setAttribute('data-child', cid);
+          selBig.setAttribute('data-type', 'big');
+          if (big && poolBig.indexOf(big) === -1) {
+            var ob0 = document.createElement('option');
+            ob0.value = big;
+            ob0.textContent = big;
+            ob0.selected = true;
+            selBig.appendChild(ob0);
+          }
+          poolBig.forEach(function (opt) {
+            var o = document.createElement('option');
+            o.value = opt;
+            o.textContent = opt;
+            if (opt === big) o.selected = true;
+            selBig.appendChild(o);
+          });
+          selBig.addEventListener('change', function () {
+            var c = this.getAttribute('data-child');
+            M.setActiveRewardItem(c, 'big', 0, this.value);
+            pushSync();
+            renderRewards();
+          });
+          var rowBig = document.createElement('p');
+          rowBig.style.margin = '2px 0 0 0';
+          rowBig.appendChild(document.createTextNode('Big: '));
+          rowBig.appendChild(selBig);
+          block.appendChild(rowBig);
+          tweakEl.appendChild(block);
+        });
+      }
+
+      function renderList(childId, type) {
+        var listId = 'rewards-' + childId + '-' + type;
+        var listEl = document.getElementById(listId);
+        if (!listEl) return;
+        var arr = (config[childId] && config[childId][type]) ? config[childId][type] : [];
+        listEl.innerHTML = '';
+        arr.forEach(function (name, i) {
+          var li = document.createElement('li');
+          li.style.display = 'flex';
+          li.style.justifyContent = 'space-between';
+          li.style.alignItems = 'center';
+          li.style.padding = '6px 0';
+          li.innerHTML = '<span>' + name + '</span><button type="button" class="secondary" data-remove="' + childId + '-' + type + '-' + i + '">Remove</button>';
+          li.querySelector('button').addEventListener('click', function () {
+            var c = M.getRewardsConfig();
+            if (c[childId] && c[childId][type]) {
+              c[childId][type].splice(i, 1);
+              M.saveRewardsConfig(c);
+              renderRewards();
+              pushSync();
+            }
+          });
+          listEl.appendChild(li);
+        });
+      }
+      renderList('kaia', 'small');
+      renderList('kaia', 'big');
+      renderList('judah', 'small');
+      renderList('judah', 'big');
+    }
+
+    document.getElementById('btn-randomise-rewards').addEventListener('click', function () {
+      M.randomiseActiveRewards();
+      pushSync();
+      renderRewards();
+      renderWeek();
+      alert('This week\'s choices randomised. Check Rewards and This Week tabs.');
+    });
+
+    document.querySelectorAll('.btn-add-reward').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var childId = btn.getAttribute('data-child');
+        var type = btn.getAttribute('data-type');
+        var inputId = 'new-' + childId + '-' + type;
+        var input = document.getElementById(inputId);
+        var v = (input && input.value) ? input.value.trim() : '';
+        if (!v) return;
+        var config = M.getRewardsConfig();
+        if (!config[childId]) config[childId] = { small: [], big: [] };
+        if (!config[childId][type]) config[childId][type] = [];
+        config[childId][type].push(v);
+        M.saveRewardsConfig(config);
+        if (input) input.value = '';
+        renderRewards();
+        pushSync();
+      });
+    });
+
+    var currentTaskChild = 'kaia';
+
+    function moveTask(cid, taskId, direction) {
+      var tasks = M.getTasks(cid).sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
+      var idx = tasks.findIndex(function (x) { return x.id === taskId; });
+      if (idx < 0) return;
+      var swap = direction === 'up' ? idx - 1 : idx + 1;
+      if (swap < 0 || swap >= tasks.length) return;
+      var temp = tasks[idx].order;
+      tasks[idx].order = tasks[swap].order;
+      tasks[swap].order = temp;
+      tasks.sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
+      for (var i = 0; i < tasks.length; i++) tasks[i].order = i;
+      M.saveTasks(cid, tasks);
+      renderTasks();
+      pushSync();
+    }
+
+    function renderTasks() {
+      M.CHILD_IDS.forEach(function (cid) {
+        var tasks = (M.getTasks(cid) || []).slice().sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
+        var list = document.getElementById('tasks-list-' + cid);
+        if (!list) return;
+        list.innerHTML = '';
+        tasks.forEach(function (t, idx) {
+          var id = t.id || ('task_' + idx);
+          var label = (t.label || 'Task').replace(/</g, '&lt;');
+          var duration = parseInt(t.duration, 10) || 5;
+          var li = document.createElement('li');
+          li.style.display = 'flex';
+          li.style.justifyContent = 'space-between';
+          li.style.alignItems = 'center';
+          li.style.padding = '8px 0';
+          li.style.borderBottom = '1px solid #eee';
+          var upDisabled = idx === 0 ? ' disabled' : '';
+          var downDisabled = idx === tasks.length - 1 ? ' disabled' : '';
+          li.innerHTML = '<span class="task-row-left">' +
+            '<button type="button" class="order-btn" title="Move up" data-move="up" data-task-id="' + id + '"' + upDisabled + '>↑</button>' +
+            '<button type="button" class="order-btn" title="Move down" data-move="down" data-task-id="' + id + '"' + downDisabled + '>↓</button>' +
+            ' ' + label + ' <small>(' + duration + ' min)</small></span>' +
+            '<span><input type="number" min="1" data-task-id="' + id + '" value="' + duration + '" style="width: 60px;"> min <button type="button" class="secondary" data-remove="' + id + '">Remove</button></span>';
+          li.querySelector('input').addEventListener('change', function () {
+            var task = tasks[idx];
+            if (task) { task.duration = parseInt(this.value, 10) || 5; M.saveTasks(cid, tasks); pushSync(); }
+          });
+          li.querySelector('button[data-remove]').addEventListener('click', function () {
+            var next = tasks.filter(function (_, i) { return i !== idx; });
+            M.saveTasks(cid, next);
+            renderTasks();
+            pushSync();
+          });
+          li.querySelectorAll('.order-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              moveTask(cid, id, btn.getAttribute('data-move'));
+            });
+          });
+          list.appendChild(li);
+        });
+      });
+    }
+
+    document.querySelectorAll('.nav-tab[data-task-child]').forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        var cid = this.getAttribute('data-task-child');
+        currentTaskChild = cid;
+        document.querySelectorAll('.nav-tab[data-task-child]').forEach(function (t) { t.classList.remove('active'); });
+        this.classList.add('active');
+        var kaiaPanel = document.getElementById('tasks-kaia');
+        var judahPanel = document.getElementById('tasks-judah');
+        if (kaiaPanel) kaiaPanel.style.display = cid === 'kaia' ? 'block' : 'none';
+        if (judahPanel) judahPanel.style.display = cid === 'judah' ? 'block' : 'none';
+        renderTasks();
+      });
+    });
+
+    document.querySelectorAll('.btn-add-task').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var cid = this.getAttribute('data-child');
+        var labelEl = document.getElementById('new-task-label-' + cid);
+        var durEl = document.getElementById('new-task-duration-' + cid);
+        var label = labelEl.value.trim();
+        var duration = parseInt(durEl.value, 10) || 5;
+        if (!label) return;
+        var tasks = M.getTasks(cid);
+        var id = 'task_' + Date.now();
+        tasks.push({ id: id, label: label, duration: duration, core: true, order: tasks.length });
+        M.saveTasks(cid, tasks);
+        labelEl.value = '';
+        durEl.value = '5';
+        renderTasks();
+        pushSync();
+      });
+    });
+
+    document.querySelectorAll('.publish-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var cid = this.getAttribute('data-publish-child');
+        var name = M.CHILD_NAMES[cid];
+        pushSync();
+        var statusEl = document.getElementById('publish-status-' + cid);
+        if (statusEl) {
+          statusEl.textContent = 'Published! With sync: ' + name + ' sees it in a few seconds. Without sync: next time they open the app.';
+          statusEl.style.color = '#0a0';
+          statusEl.style.fontSize = '12px';
+          setTimeout(function () { statusEl.textContent = ''; }, 6000);
+        }
+      });
+    });
+
+    function renderSettings() {
+      const s = M.getSettings();
+      document.getElementById('setting-target-time').value = s.targetFinishTime || '07:30';
+      document.getElementById('setting-threshold').value = s.weeklyUnlockThreshold || 30;
+      document.getElementById('setting-big-prize-jars').value = Math.max(1, parseInt(s.bigPrizeJarsRequired, 10) || 3);
+      document.getElementById('setting-time-bonus').value = s.timeBonusEnabled !== false ? 'true' : 'false';
+    }
+
+    document.getElementById('save-settings').addEventListener('click', function () {
+      const s = M.getSettings();
+      s.targetFinishTime = document.getElementById('setting-target-time').value;
+      s.weeklyUnlockThreshold = parseInt(document.getElementById('setting-threshold').value, 10) || 30;
+      s.bigPrizeJarsRequired = Math.max(1, parseInt(document.getElementById('setting-big-prize-jars').value, 10) || 3);
+      s.timeBonusEnabled = document.getElementById('setting-time-bonus').value === 'true';
+      M.saveSettings(s);
+      pushSync();
+    });
+
+    document.querySelectorAll('.reset-prizes-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var cid = btn.getAttribute('data-child');
+        var action = btn.getAttribute('data-action');
+        var name = M.CHILD_NAMES[cid] || cid;
+        if (action === 'saved') {
+          M.resetSavedForBigPrize(cid);
+          pushSync();
+          alert('Reset saved-for-big-prize count for ' + name + '.');
+        } else if (action === 'jar') {
+          M.resetJarState(cid);
+          pushSync();
+          alert('Reset jar state (bank + claimed this week) for ' + name + '. Re-seed or add points to test again.');
+        } else if (action === 'claims') {
+          M.resetClaimHistory(cid);
+          pushSync();
+          alert('Cleared claim history for ' + name + '.');
+        }
+        if (document.getElementById('tab-week').classList.contains('active')) renderWeek();
+      });
+    });
+
+    function renderHistory() {
+      var list = document.getElementById('history-list');
+      list.innerHTML = '';
+      var today = new Date();
+      var currentWeekKey = M.getWeekKey(todayKey());
+      for (var w = 0; w < 6; w++) {
+        var d = new Date(today);
+        d.setDate(d.getDate() - w * 7);
+        var weekKey = M.getWeekKey(M.formatDateKey(d));
+        var mon = new Date(weekKey + 'T12:00:00');
+        var monStr = mon.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        var rewards = M.getRewards();
+        var parts = M.CHILD_IDS.map(function (cid) {
+          var score = M.getWeeklyScore(cid, weekKey);
+          var chosen = (weekKey === currentWeekKey && rewards.chosenThisWeek && rewards.chosenThisWeek[cid]) ? rewards.chosenThisWeek[cid] : null;
+          return M.CHILD_NAMES[cid] + ': ' + score + ' pts' + (chosen ? ' · ' + chosen : '');
+        });
+        var li = document.createElement('li');
+        li.style.padding = '10px 0';
+        li.style.borderBottom = '1px solid #eee';
+        li.textContent = 'Week of ' + monStr + ' — ' + parts.join('; ');
+        list.appendChild(li);
+      }
+    }
+
+    document.querySelectorAll('.nav-tab').forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        const name = this.getAttribute('data-tab');
+        document.querySelectorAll('.nav-tab').forEach(function (t) { t.classList.remove('active'); });
+        document.querySelectorAll('.tab-content').forEach(function (c) { c.classList.remove('active'); });
+        this.classList.add('active');
+        const panel = document.getElementById('tab-' + name);
+        if (panel) panel.classList.add('active');
+        if (name === 'today') { updateHouseholdCode(); renderToday(); }
+        if (name === 'week') renderWeek();
+        if (name === 'rewards') renderRewards();
+        if (name === 'tasks') renderTasks();
+        if (name === 'settings') renderSettings();
+        if (name === 'history') renderHistory();
+      });
+    });
+
+    document.querySelectorAll('.seed-demo-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var cid = btn.getAttribute('data-child');
+        if (cid) seedDemoWeek(cid);
+      });
+    });
+
+    if (Sync && Sync.isConfigured()) {
+      Sync.ensureHouseholdId();
+      Sync.loadFromSupabase(function (state) {
+        if (state && M.setFullState) M.setFullState(state);
+        updateHouseholdCode();
+        renderToday();
+      });
+      Sync.subscribeToSupabase(function () {
+        renderToday();
+        if (document.getElementById('tab-week').classList.contains('active')) renderWeek();
+        if (document.getElementById('tab-rewards').classList.contains('active')) renderRewards();
+        if (document.getElementById('tab-tasks').classList.contains('active')) renderTasks();
+      });
+    }
+
+    updateHouseholdCode();
+    renderToday();
+  </script>
+  <p class="build-version" style="text-align: center; font-size: 11px; color: #999; margin: 12px 0;">Build 2026-03-08 — if you don’t see this, hard refresh (Ctrl+Shift+R)</p>
+</body>
+</html>

@@ -1,0 +1,879 @@
+/* Morning Checklist v2 – shared styles */
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body.morning-v2 {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+  background-attachment: fixed;
+  color: #333;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.morning-v2 .container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px;
+  padding-bottom: calc(32px + env(safe-area-inset-bottom));
+}
+
+/* Child view: iPad portrait */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .morning-v2 .container {
+    max-width: 520px;
+    padding: 24px;
+    padding-bottom: calc(40px + env(safe-area-inset-bottom));
+  }
+  .runway-panel { padding: 24px; margin-bottom: 24px; }
+  .runway-time { font-size: 32px; }
+  .next-card { padding: 28px; margin-bottom: 24px; }
+  .next-card .task-name { font-size: 24px; }
+  .next-card .btn-done { padding: 18px 52px; font-size: 20px; min-height: 48px; }
+  .remaining-list li { padding: 16px 18px; font-size: 17px; }
+  .remaining-list li .btn-done-small { padding: 10px 18px; font-size: 16px; min-height: 44px; }
+  .weekly-unlock { padding: 20px; }
+  .jar { width: 64px; height: 96px; }
+  .parent-link { bottom: calc(16px + env(safe-area-inset-bottom)); right: calc(16px + env(safe-area-inset-right)); }
+}
+
+/* Runway panel */
+.runway-panel {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: center;
+}
+
+.runway-panel h2 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.runway-time {
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.runway-meta {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 8px;
+}
+
+.runway-status {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.runway-status.ahead {
+  background: rgba(46, 213, 115, 0.3);
+  color: #2ed573;
+}
+
+.runway-status.on-track {
+  background: rgba(72, 219, 251, 0.3);
+  color: #48dbfb;
+}
+
+.runway-status.behind {
+  background: rgba(255, 71, 87, 0.3);
+  color: #ff4757;
+}
+
+.runway-suggestion {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  font-size: 14px;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+/* Next task card */
+.next-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.next-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #666;
+}
+
+.next-card .task-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f3460;
+  margin-bottom: 4px;
+}
+
+.next-card .task-estimate {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.remaining-list .task-mins {
+  font-weight: 400;
+  color: #666;
+  font-size: 13px;
+}
+
+.next-card .btn-done {
+  display: inline-block;
+  padding: 16px 48px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(15, 52, 96, 0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.next-card .btn-done:active {
+  transform: scale(0.98);
+}
+
+.next-card.all-done .task-name {
+  color: #2ed573;
+}
+
+.next-card.all-done .btn-done {
+  background: linear-gradient(135deg, #2ed573 0%, #1e824c 100%);
+  cursor: default;
+  opacity: 0.9;
+}
+
+/* Remaining list */
+.remaining-section h3 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.remaining-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+}
+
+.remaining-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.remaining-list li .btn-done-small {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f3460;
+  background: rgba(72, 219, 251, 0.25);
+  border: 2px solid #48dbfb;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.remaining-list li.completed {
+  opacity: 0.6;
+  background: #f0f0f0;
+  color: #666;
+}
+
+.remaining-list li.completed .btn-done-small {
+  display: none;
+}
+
+/* Progress */
+.progress-section {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Weekly unlock */
+.weekly-unlock {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  text-align: center;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.weekly-unlock .score {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.weekly-unlock .status {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.weekly-unlock.unlocked .status {
+  color: #2ed573;
+}
+
+.big-prize-progress {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 193, 7, 0.95);
+  margin: 8px 0 0 0;
+}
+
+.big-prize-claim-btn {
+  display: block;
+  margin-top: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(180deg, rgba(255, 193, 7, 0.9) 0%, rgba(255, 152, 0, 0.8) 100%);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
+  color: #1a1a2e;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.big-prize-claim-btn:hover {
+  background: linear-gradient(180deg, rgba(255, 213, 79, 0.95) 0%, rgba(255, 167, 38, 0.9) 100%);
+}
+
+.recent-claim-note {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 10px 0 0 0;
+}
+
+.jar-reset-note {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 8px 0 0 0;
+}
+
+.rewards-preview {
+  margin-top: 10px;
+  text-align: left;
+}
+
+.rewards-preview-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.5;
+}
+
+.rewards-preview-list li {
+  padding: 4px 0;
+  padding-left: 16px;
+  position: relative;
+}
+
+.rewards-preview-list li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Weekly jar */
+.weekly-unlock .jar-label {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.weekly-unlock .rewards-section-title {
+  font-weight: bold;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0 0 8px 0;
+}
+
+.today-points {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 8px;
+}
+
+.points-taken-away {
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  background: rgba(255, 152, 0, 0.35);
+  border: 1px solid rgba(255, 152, 0, 0.6);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.points-taken-away:hover {
+  background: rgba(255, 152, 0, 0.5);
+}
+
+.jar-hint {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0 0 12px;
+}
+
+.jars-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.jars-row .jar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 0;
+}
+
+.jar-full-wrap {
+  cursor: pointer;
+}
+
+.jar-full.claimable {
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.jar-full.claimable:hover,
+.jar-full.claimable:active {
+  transform: scale(1.05);
+}
+
+.jar-saved .jar-fill {
+  background: linear-gradient(180deg, rgba(255, 193, 7, 0.95) 0%, rgba(255, 152, 0, 0.7) 100%);
+}
+
+.jar-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.jar {
+  width: 56px;
+  height: 80px;
+  border: 3px solid rgba(255, 255, 255, 0.5);
+  border-radius: 8px 8px 4px 4px;
+  background: rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.jar-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, rgba(72, 219, 251, 0.9) 0%, rgba(72, 219, 251, 0.6) 100%);
+  border-radius: 0 0 4px 4px;
+  transition: height 0.4s ease;
+}
+
+.weekly-unlock.unlocked .jar-fill {
+  background: linear-gradient(180deg, rgba(46, 213, 115, 0.9) 0%, rgba(46, 213, 115, 0.6) 100%);
+}
+
+.jar-score {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.reward-picker-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+}
+
+.reward-picker-modal {
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 20px 24px;
+  max-width: 320px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: auto;
+}
+
+.reward-picker-title {
+  margin: 0 0 16px;
+  font-size: 20px;
+  color: #fff;
+}
+
+.reward-picker-list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+}
+
+.reward-picker-option {
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.reward-picker-option:hover,
+.reward-picker-option:active {
+  background: rgba(72, 219, 251, 0.35);
+}
+
+.reward-picker-option:last-of-type {
+  margin-bottom: 0;
+}
+
+.reward-picker-cancel {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.reward-picker-cancel:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.preview-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 16px;
+  padding-top: calc(10px + env(safe-area-inset-top));
+  background: #ff9800;
+  color: #000;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  z-index: 100;
+}
+
+/* Parent dashboard */
+.parent-dash {
+  background: #f5f5f5;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-top: env(safe-area-inset-top);
+}
+
+.parent-dash .container {
+  max-width: 640px;
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+}
+
+/* Parent on iPhone: touch-friendly, no overflow */
+@media (max-width: 430px) {
+  .parent-dash .container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .parent-dash .nav-tabs {
+    gap: 6px;
+    padding: 6px;
+  }
+  .parent-dash .nav-tab {
+    padding: 12px 14px;
+    font-size: 13px;
+    min-height: 44px;
+  }
+  .parent-dash .card {
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .parent-dash .card h3 {
+    font-size: 15px;
+  }
+  .parent-dash button {
+    min-height: 44px;
+    padding: 12px 20px;
+  }
+  .parent-dash .child-link {
+    display: block;
+    text-align: center;
+    margin-top: 12px;
+  }
+  .household-code-box {
+    font-size: 20px;
+    letter-spacing: 0.15em;
+    padding: 14px 16px;
+  }
+  body.parent-dash {
+    overflow-x: hidden;
+  }
+}
+
+.parent-dash .nav-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 6px;
+  background: rgba(15, 52, 96, 0.08);
+  border-radius: 12px;
+}
+
+.parent-dash .nav-tab {
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #0f3460;
+  cursor: pointer;
+}
+
+.parent-dash .nav-tab.active {
+  background: #0f3460;
+  color: #fff;
+}
+
+.parent-dash .tab-content {
+  display: none;
+}
+
+.parent-dash .tab-content.active {
+  display: block;
+}
+
+.parent-dash .card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.parent-dash .card h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.parent-dash label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.parent-dash input,
+.parent-dash select {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.parent-dash button {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: #0f3460;
+  color: #fff;
+}
+
+.parent-dash button.secondary {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.parent-dash #rating-buttons button.active,
+.parent-dash .rating-buttons button.active {
+  background: #0f3460;
+  color: #fff;
+}
+
+.parent-dash .manual-buttons button.manual-minus {
+  background: #f5f5f5;
+  color: #c00;
+  border: 1px solid #e0e0e0;
+}
+
+.parent-dash .manual-buttons button.manual-minus:hover {
+  background: #fee;
+}
+
+.parent-dash .reset-today-btn {
+  margin-top: 16px;
+  display: block;
+}
+
+.tasks-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.tasks-panel-header h4 {
+  flex: 1;
+  min-width: 0;
+}
+
+.publish-btn {
+  background: #0f3460;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.publish-btn:hover {
+  background: #16213e;
+}
+
+.publish-status {
+  font-size: 13px;
+  margin-left: 4px;
+}
+
+.task-row-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.order-btn {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #f5f5f5;
+  cursor: pointer;
+  color: #333;
+}
+
+.order-btn:hover {
+  background: #e0e0e0;
+}
+
+.order-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.parent-dash .btn-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Child link on parent */
+.child-link {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 10px 20px;
+  background: #48dbfb;
+  color: #0f3460;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 8px;
+}
+
+.child-link.secondary {
+  background: transparent;
+  color: #0f3460;
+  border: 2px solid #0f3460;
+  font-size: 13px;
+}
+
+/* Parent link on child (subtle) */
+.parent-link {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+}
+
+.parent-link:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Pairing (child) */
+.pairing-panel {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  text-align: center;
+}
+
+.pairing-panel h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: #fff;
+}
+
+.pairing-panel p {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.pairing-panel input {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  margin: 0 auto 12px;
+  padding: 12px 16px;
+  font-size: 18px;
+  text-align: center;
+  letter-spacing: 0.2em;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.pairing-panel button {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  background: #48dbfb;
+  color: #0f3460;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.pairing-status {
+  margin-top: 12px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.child-pick-btn {
+  padding: 16px 32px;
+  font-size: 18px;
+  font-weight: 700;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  margin: 0 8px;
+  background: rgba(72, 219, 251, 0.9);
+  color: #0f3460;
+}
+
+.child-pick-btn:active {
+  transform: scale(0.98);
+}
+
+/* Household code (parent) */
+.household-code-box {
+  background: #0f3460;
+  color: #48dbfb;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-align: center;
+  margin: 12px 0;
+}
+
+.household-code-hint {
+  font-size: 13px;
+  color: #666;
+  margin-top: 8px;
+}

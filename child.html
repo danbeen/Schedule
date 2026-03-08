@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Morning Checklist</title>
+  <link rel="stylesheet" href="css/morning-v2.css?v=20260308c">
+</head>
+<body class="morning-v2">
+  <div class="container">
+    <div id="who-panel" class="pairing-panel" style="display: none;">
+      <h3>Who is this?</h3>
+      <p>Tap your name so this device shows your checklist.</p>
+      <div class="btn-group" style="justify-content: center; margin-top: 12px;">
+        <button type="button" id="pick-kaia" class="child-pick-btn">Kaia</button>
+        <button type="button" id="pick-judah" class="child-pick-btn">Judah</button>
+      </div>
+    </div>
+    <div id="pairing-panel" class="pairing-panel" style="display: none;">
+      <h3>Sync with parent</h3>
+      <p>Enter the code from the parent device.</p>
+      <input type="text" id="household-code-input" placeholder="e.g. abc123" maxlength="8" autocomplete="off">
+      <button type="button" id="join-household-btn">Join</button>
+      <p id="pairing-status" class="pairing-status"></p>
+    </div>
+
+    <div id="runway-panel" class="runway-panel">
+      <p class="whose-checklist" id="whose-checklist" style="font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.9); margin: 0 0 8px 0;"></p>
+      <h2>Morning Runway</h2>
+      <div class="runway-time" id="runway-time">-- min</div>
+      <div class="runway-meta" id="runway-meta">Target: 7:30 AM</div>
+      <div class="runway-status on-track" id="runway-status">On Track</div>
+      <div class="runway-suggestion" id="runway-suggestion" style="display: none;"></div>
+    </div>
+
+    <div id="weekly-unlock" class="weekly-unlock">
+      <h3 class="jar-label">Reward jars</h3>
+      <div class="today-points" id="today-points">Today’s points: 0</div>
+      <div id="points-taken-away" class="points-taken-away" style="display: none;" role="alert"></div>
+      <p class="jar-hint" id="jar-hint"></p>
+      <div class="jars-row" id="jars-row"></div>
+      <div class="status" id="weekly-status"></div>
+      <div id="debug-bar" style="font-size: 11px; color: rgba(255,255,255,0.55); margin: 4px 0 2px; word-break: break-all;"></div>
+      <p class="big-prize-progress" id="big-prize-progress" style="display: none;"></p>
+      <button type="button" class="big-prize-claim-btn" id="big-prize-claim-btn" style="display: none;">Choose your big prize!</button>
+      <h4 class="rewards-section-title">This Week’s Rewards</h4>
+      <div class="rewards-preview" id="weekly-rewards-preview"></div>
+      <p class="recent-claim-note" id="recent-claim-note" style="display: none;"></p>
+    </div>
+
+    <div id="next-card" class="next-card">
+      <h3>Next up</h3>
+      <div class="task-name" id="next-task-name">--</div>
+      <div class="task-estimate" id="next-task-estimate"></div>
+      <button type="button" class="btn-done" id="btn-done">DONE</button>
+    </div>
+
+    <div class="remaining-section">
+      <h3>Still to do</h3>
+      <ul class="remaining-list" id="remaining-list"></ul>
+    </div>
+
+    <div class="progress-section" id="progress-section">
+      0 / 7 tasks complete
+    </div>
+
+    <div id="preview-banner" class="preview-banner" style="display: none;">Preview: showing schedule as if it’s <span id="preview-time"></span></div>
+  </div>
+
+  <div id="reward-picker-overlay" class="reward-picker-overlay" style="display: none;" aria-hidden="true">
+    <div class="reward-picker-modal" role="dialog" aria-labelledby="reward-picker-title">
+      <h3 id="reward-picker-title" class="reward-picker-title">Pick your reward!</h3>
+      <ul class="reward-picker-list" id="reward-picker-list"></ul>
+      <button type="button" class="reward-picker-cancel" id="reward-picker-cancel">Cancel</button>
+    </div>
+  </div>
+
+  <a href="parent.html" class="parent-link">Parent</a>
+  <p class="build-version" style="text-align: center; font-size: 11px; color: rgba(255,255,255,0.5); margin: 8px 0;">Build 2026-03-08 — if you don’t see this, hard refresh (Ctrl+Shift+R)</p>
+
+  <script src="js/morning-v2.js?v=20260308c"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>window.MORNING_V2_SUPABASE = window.MORNING_V2_SUPABASE || {};</script>
+  <script src="js/sync.js"></script>
+  <script>
+    var M = window.MorningV2;
+    var Sync = window.MorningV2Sync;
+    var CHILD_ID_KEY = M.PREFIX + 'child_id';
+
+    function getChildId() {
+      var fromUrl = (function () {
+        var m = /[?&]kid=(\w+)/i.exec(window.location.search);
+        return m ? m[1].toLowerCase() : null;
+      })();
+      if (fromUrl && M.CHILD_IDS.indexOf(fromUrl) !== -1) {
+        try { localStorage.setItem(CHILD_ID_KEY, fromUrl); } catch (e) {}
+        return fromUrl;
+      }
+      try { return localStorage.getItem(CHILD_ID_KEY); } catch (e) { return null; }
+    }
+
+    function setChildId(id) {
+      try {
+        localStorage.setItem(CHILD_ID_KEY, id);
+        document.title = (M.CHILD_NAMES[id] || id) + "'s Checklist";
+      } catch (e) {}
+    }
+
+    var childId = getChildId();
+
+    (function setPreviewDateOverride() {
+      var search = window.location.search || '';
+      var dayNames = { mon: 0, tue: 1, wed: 2, thu: 3, fri: 4, sat: 5, sun: 6 };
+      var m = /[?&]preview=(mon|tue|wed|thu|fri|sat|sun)/i.exec(search);
+      if (m) {
+        var realToday = new Date();
+        var weekKey = M.getWeekKey(M.formatDateKey(realToday));
+        var mondayDate = new Date(weekKey + 'T12:00:00');
+        var addDays = dayNames[m[1].toLowerCase()];
+        var d = new Date(mondayDate);
+        d.setDate(d.getDate() + addDays);
+        window.MORNING_V2_TODAY_OVERRIDE = M.formatDateKey(d);
+        return;
+      }
+      m = /[?&]preview=(\d{4})-(\d{2})-(\d{2})/.exec(search);
+      if (m) {
+        window.MORNING_V2_TODAY_OVERRIDE = m[1] + '-' + m[2] + '-' + m[3];
+      }
+    })();
+
+    function getPreviewDateKey() {
+      return window.MORNING_V2_TODAY_OVERRIDE || null;
+    }
+
+    function showWho() {
+      document.getElementById('who-panel').style.display = 'block';
+      document.getElementById('pairing-panel').style.display = 'none';
+      document.getElementById('runway-panel').style.display = 'none';
+      document.getElementById('next-card').style.display = 'none';
+      document.querySelector('.remaining-section').style.display = 'none';
+      document.getElementById('progress-section').style.display = 'none';
+      document.getElementById('weekly-unlock').style.display = 'none';
+    }
+
+    function showPairing() {
+      document.getElementById('who-panel').style.display = 'none';
+      document.getElementById('pairing-panel').style.display = 'block';
+      document.getElementById('runway-panel').style.display = 'none';
+      document.getElementById('next-card').style.display = 'none';
+      document.querySelector('.remaining-section').style.display = 'none';
+      document.getElementById('progress-section').style.display = 'none';
+      document.getElementById('weekly-unlock').style.display = 'none';
+    }
+
+    function showChecklist() {
+      document.getElementById('who-panel').style.display = 'none';
+      document.getElementById('pairing-panel').style.display = 'none';
+      document.getElementById('runway-panel').style.display = 'block';
+      document.getElementById('next-card').style.display = 'block';
+      document.querySelector('.remaining-section').style.display = 'block';
+      document.getElementById('progress-section').style.display = 'block';
+      document.getElementById('weekly-unlock').style.display = 'block';
+    }
+
+    function afterSyncLoad() {
+      if (Sync && Sync.isConfigured()) {
+        Sync.loadFromSupabase(function (state) {
+          if (state && M.setFullState) M.setFullState(state);
+          render();
+        });
+        Sync.subscribeToSupabase(function () { render(); });
+      } else {
+        render();
+      }
+    }
+
+    function pushSync() {
+      if (Sync && Sync.isConfigured() && Sync.getHouseholdId()) {
+        Sync.saveToSupabase();
+      }
+    }
+
+    function getPreviewTime() {
+      var m = /[?&]preview=(\d{1,2}):(\d{2})/i.exec(window.location.search);
+      if (!m) return null;
+      var h = parseInt(m[1], 10);
+      var min = parseInt(m[2], 10);
+      if (h < 0 || h > 23 || min < 0 || min > 59) return null;
+      var d = new Date();
+      d.setHours(h, min, 0, 0);
+      return d;
+    }
+
+    function render() {
+      if (!childId) return;
+      var whoseEl = document.getElementById('whose-checklist');
+      if (whoseEl) whoseEl.textContent = (M.CHILD_NAMES[childId] || childId) + "'s checklist";
+      var today = M.getTodayKey();
+      var previewNow = getPreviewTime();
+      var previewDateKey = getPreviewDateKey();
+      var showBanner = previewNow || previewDateKey;
+      if (showBanner) {
+        document.getElementById('preview-banner').style.display = 'block';
+        var parts = [];
+        if (previewDateKey) {
+          var d = new Date(previewDateKey + 'T12:00:00');
+          parts.push(d.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' }));
+        }
+        if (previewNow) {
+          var h = previewNow.getHours();
+          var m = previewNow.getMinutes();
+          parts.push((h > 12 ? h - 12 : h) + ':' + String(m).padStart(2, '0') + (h >= 12 ? ' PM' : ' AM'));
+        }
+        document.getElementById('preview-time').textContent = parts.join(' · ');
+      } else {
+        document.getElementById('preview-banner').style.display = 'none';
+      }
+      var runway = M.getRunwayState(childId, today, previewNow || undefined);
+      var tasks = M.getTasks(childId).filter(function (t) { return t.core; });
+      var total = tasks.length;
+      var completedIds = M.getCompletedTaskIds(childId, today);
+      var completedOrdered = M.getCompletedTasksOrdered(childId, today);
+      var remaining = M.getRemainingTasks(childId, today);
+      var nextId = M.getNextTaskId(childId, today);
+      var weekly = M.getWeeklyUnlockState(childId);
+
+      document.getElementById('runway-time').textContent = runway.timeLeftMins + ' min';
+      const targetDisplay = runway.targetFinishTime.replace(/^0?(\d+):(\d+)$/, function(_, h, m) {
+        const hour = parseInt(h, 10);
+        return (hour <= 12 ? hour : hour - 12) + ':' + m + (hour < 12 ? ' AM' : ' PM');
+      });
+      document.getElementById('runway-meta').textContent =
+        'Estimated tasks remaining: ' + runway.estimatedMins + ' min · Target: ' + targetDisplay;
+      var statusEl = document.getElementById('runway-status');
+      statusEl.textContent = runway.status;
+      statusEl.className = 'runway-status ' + (runway.status === 'Ahead' ? 'ahead' : runway.status === 'Behind' ? 'behind' : 'on-track');
+
+      var suggestionEl = document.getElementById('runway-suggestion');
+      if (runway.suggestedNextTaskLabel && runway.suggestedNextTaskMinutes != null) {
+        suggestionEl.style.display = 'block';
+        suggestionEl.textContent = 'Try to do ' + runway.suggestedNextTaskLabel + ' in about ' + runway.suggestedNextTaskMinutes + ' min to get back on track.';
+      } else {
+        suggestionEl.style.display = 'none';
+      }
+
+      var nextCard = document.getElementById('next-card');
+      var nextName = document.getElementById('next-task-name');
+      var nextEst = document.getElementById('next-task-estimate');
+      var btnDone = document.getElementById('btn-done');
+
+      if (nextId) {
+        var task = tasks.find(function (t) { return t.id === nextId; });
+        var estMins = task ? task.duration : 0;
+        nextName.textContent = task ? task.label : nextId;
+        nextEst.textContent = 'About ' + estMins + ' min';
+        nextEst.style.display = 'block';
+        btnDone.textContent = 'DONE';
+        btnDone.disabled = false;
+        nextCard.classList.remove('all-done');
+      } else {
+        nextName.textContent = 'All done!';
+        nextEst.style.display = 'none';
+        btnDone.textContent = 'Done!';
+        btnDone.disabled = true;
+        nextCard.classList.add('all-done');
+      }
+
+      var listEl = document.getElementById('remaining-list');
+      listEl.innerHTML = '';
+      remaining.forEach(function (t) {
+        var li = document.createElement('li');
+        li.innerHTML = '<span>' + t.label + ' <small class="task-mins">(~' + t.duration + ' min)</small></span><button type="button" class="btn-done-small" data-task="' + t.id + '">Done</button>';
+        li.querySelector('.btn-done-small').addEventListener('click', function () { markDone(t.id); });
+        listEl.appendChild(li);
+      });
+      completedOrdered.forEach(function (t) {
+        var li = document.createElement('li');
+        li.className = 'completed';
+        li.innerHTML = '<span>✓ ' + t.label + '</span>';
+        listEl.appendChild(li);
+      });
+
+      document.getElementById('progress-section').textContent =
+        completedIds.length + ' / ' + total + ' tasks complete';
+
+      var dailyScore = M.getDailyScore(childId, today);
+      document.getElementById('today-points').textContent = 'Today’s points: ' + dailyScore;
+
+      var lastScoreKey = M.PREFIX + 'lastDaily_' + childId + '_' + today;
+      var lastScoreRaw = sessionStorage.getItem(lastScoreKey);
+      var takenAwayEl = document.getElementById('points-taken-away');
+      if (lastScoreRaw !== null) {
+        var lastScore = parseInt(lastScoreRaw, 10);
+        if (!isNaN(lastScore) && dailyScore < lastScore) {
+          var diff = lastScore - dailyScore;
+          takenAwayEl.textContent = diff === 1 ? '1 point was taken away today.' : diff + ' points were taken away today.';
+          takenAwayEl.style.display = 'block';
+          takenAwayEl.onclick = function () { takenAwayEl.style.display = 'none'; };
+        } else {
+          takenAwayEl.style.display = 'none';
+        }
+      } else {
+        takenAwayEl.style.display = 'none';
+      }
+      sessionStorage.setItem(lastScoreKey, String(dailyScore));
+
+      var jar = weekly.jarState || M.getJarState(childId);
+      var totalClaimable = jar.totalClaimable;
+      var progressToNext = jar.progressToNext;
+      var pointsToNext = jar.pointsToNextJar;
+      var threshold = jar.threshold || 35;
+      var hintEl = document.getElementById('jar-hint');
+      if (hintEl) hintEl.textContent = 'Every ' + threshold + ' points = 1 full jar. Tap a full jar to claim your reward!';
+
+      var savedCount = M.getSavedForBigPrizeCount(childId);
+      var jarsRow = document.getElementById('jars-row');
+      jarsRow.innerHTML = '';
+      var i;
+      for (i = 0; i < savedCount; i++) {
+        var savedWrap = document.createElement('div');
+        savedWrap.className = 'jar-wrap';
+        savedWrap.innerHTML = '<div class="jar jar-full jar-saved" aria-label="Saved for a big prize"><div class="jar-fill" style="height: 100%;"></div></div>';
+        jarsRow.appendChild(savedWrap);
+      }
+      for (i = 0; i < totalClaimable; i++) {
+        var fullWrap = document.createElement('div');
+        fullWrap.className = 'jar-wrap jar-full-wrap';
+        fullWrap.innerHTML = '<div class="jar jar-full claimable" data-claim="1" aria-label="Full jar – tap to claim reward"><div class="jar-fill" style="height: 100%;"></div></div>';
+        fullWrap.querySelector('.jar').addEventListener('click', function () {
+          openRewardPicker();
+        });
+        jarsRow.appendChild(fullWrap);
+      }
+      var progressWrap = document.createElement('div');
+      progressWrap.className = 'jar-wrap';
+      var pct = threshold > 0 ? Math.min(100, Math.round((progressToNext / threshold) * 100)) : 0;
+      progressWrap.innerHTML = '<div class="jar" aria-hidden="true"><div class="jar-fill jar-progress" style="height: ' + pct + '%;"></div></div><div class="jar-score">' + progressToNext + ' / ' + threshold + '</div>';
+      jarsRow.appendChild(progressWrap);
+
+      var debugBar = document.getElementById('debug-bar');
+      if (debugBar) {
+        var rawJar = M.getJarState(childId);
+        debugBar.textContent = 'DBG: kid=' + childId + ' | today=' + today + ' | weekScore=' + rawJar.currentWeekScore + ' | threshold=' + rawJar.threshold + ' | claimable=' + rawJar.totalClaimable + ' | claimedThisWeek=' + rawJar.claimedThisWeek + ' | jarBank=' + rawJar.jarBank + ' | saved=' + savedCount;
+      }
+
+      var weekStatus = document.getElementById('weekly-status');
+      var previewEl = document.getElementById('weekly-rewards-preview');
+      document.getElementById('weekly-unlock').classList.toggle('unlocked', totalClaimable > 0 || savedCount > 0);
+      if (totalClaimable > 0 || savedCount > 0) {
+        var statusParts = [];
+        if (totalClaimable > 0) statusParts.push(totalClaimable === 1 ? 'Tap the full jar to claim your reward!' : 'Tap any full jar to claim a reward!');
+        if (savedCount > 0) statusParts.push(savedCount === 1 ? '1 jar saved for a big prize!' : savedCount + ' jars saved for a big prize!');
+        weekStatus.textContent = statusParts.join(' ');
+        previewEl.innerHTML = weekly.chosen
+          ? ('<p class="jar-reset-note">Your reward: <strong>' + weekly.chosen + '</strong>. Points reset next Monday.</p>')
+          : '<p class="jar-reset-note">Points reset next Monday.</p>';
+      } else {
+        weekStatus.textContent = pointsToNext === threshold ? 'Get ' + threshold + ' points to fill your first jar!' : (progressToNext + ' / ' + threshold + ' to next jar');
+        var rewards = M.getActiveRewards(childId);
+        if (rewards && rewards.length > 0) {
+          previewEl.innerHTML = '<ul class="rewards-preview-list">' +
+            rewards.map(function (r) { return '<li>' + r + '</li>'; }).join('') + '</ul>';
+        } else {
+          previewEl.innerHTML = '';
+        }
+      }
+      var required = (M.getSettings() && M.getSettings().bigPrizeJarsRequired) ? M.getSettings().bigPrizeJarsRequired : 3;
+      var bigProgressEl = document.getElementById('big-prize-progress');
+      if (bigProgressEl) {
+        if (savedCount > 0 && savedCount < required) {
+          var x = required - savedCount;
+          bigProgressEl.textContent = x === 1 ? '1 more jar till a big prize is earned!' : x + ' more jars till a big prize is earned!';
+          bigProgressEl.style.display = 'block';
+        } else if (savedCount >= required) {
+          bigProgressEl.textContent = 'You\'ve earned a big prize!';
+          bigProgressEl.style.display = 'block';
+        } else {
+          bigProgressEl.style.display = 'none';
+        }
+      }
+      var bigClaimBtn = document.getElementById('big-prize-claim-btn');
+      if (bigClaimBtn) {
+        if (savedCount >= required) {
+          bigClaimBtn.style.display = 'block';
+          bigClaimBtn.onclick = function () { openBigPrizePicker(); };
+        } else {
+          bigClaimBtn.style.display = 'none';
+        }
+      }
+      var recentClaimEl = document.getElementById('recent-claim-note');
+      if (recentClaimEl) {
+        var history = M.getClaimHistory(childId) || [];
+        var last = history.length ? history[history.length - 1] : null;
+        if (last && last.choice) {
+          recentClaimEl.textContent = 'Last claimed: ' + last.choice;
+          recentClaimEl.style.display = 'block';
+        } else {
+          recentClaimEl.style.display = 'none';
+        }
+      }
+    }
+
+    function markDone(taskId) {
+      M.markTaskDone(childId, M.getTodayKey(), taskId);
+      render();
+      pushSync();
+    }
+
+    function closeRewardPicker() {
+      var el = document.getElementById('reward-picker-overlay');
+      if (el) {
+        el.style.display = 'none';
+        el.setAttribute('aria-hidden', 'true');
+      }
+    }
+
+    function openBigPrizePicker() {
+      var required = (M.getSettings() && M.getSettings().bigPrizeJarsRequired) ? M.getSettings().bigPrizeJarsRequired : 3;
+      var listEl = document.getElementById('reward-picker-list');
+      var titleEl = document.getElementById('reward-picker-title');
+      if (!listEl || !titleEl) return;
+      titleEl.textContent = 'You\'ve earned a big prize! Pick one:';
+      var bigPrizes = M.getBigPrizesList(childId) || [];
+      listEl.innerHTML = '';
+      bigPrizes.forEach(function (choice) {
+        var li = document.createElement('li');
+        li.className = 'reward-picker-option';
+        li.textContent = choice;
+        li.addEventListener('click', function () {
+          M.recordClaim(childId, choice);
+          var count = M.getSavedForBigPrizeCount(childId);
+          M.setSavedForBigPrizeCount(childId, Math.max(0, count - required));
+          closeRewardPicker();
+          render();
+          pushSync();
+        });
+        listEl.appendChild(li);
+      });
+      var overlay = document.getElementById('reward-picker-overlay');
+      if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.setAttribute('aria-hidden', 'false');
+      }
+    }
+
+    function openRewardPicker() {
+      if (!childId || M.getJarState(childId).totalClaimable <= 0) return;
+      var required = (M.getSettings() && M.getSettings().bigPrizeJarsRequired) ? M.getSettings().bigPrizeJarsRequired : 3;
+      var savedCount = M.getSavedForBigPrizeCount(childId);
+      if (savedCount >= required) {
+        openBigPrizePicker();
+        return;
+      }
+      var listEl = document.getElementById('reward-picker-list');
+      var titleEl = document.getElementById('reward-picker-title');
+      if (!listEl) return;
+      if (titleEl) titleEl.textContent = 'Pick your reward!';
+      var rewards = M.getActiveRewards(childId);
+      var choices = (rewards && rewards.length) ? rewards.slice() : [];
+      choices.push(M.SAVE_FOR_BIG_PRIZE);
+      listEl.innerHTML = '';
+      choices.forEach(function (choice) {
+        var li = document.createElement('li');
+        li.className = 'reward-picker-option';
+        li.textContent = choice;
+        li.addEventListener('click', function () {
+          M.recordClaim(childId, choice);
+          M.claimJar(childId);
+          if (choice === M.SAVE_FOR_BIG_PRIZE) {
+            M.setSavedForBigPrizeCount(childId, M.getSavedForBigPrizeCount(childId) + 1);
+            var nowSaved = M.getSavedForBigPrizeCount(childId);
+            if (nowSaved >= required) {
+              openBigPrizePicker();
+              return;
+            }
+          }
+          closeRewardPicker();
+          render();
+          pushSync();
+        });
+        listEl.appendChild(li);
+      });
+      var overlay = document.getElementById('reward-picker-overlay');
+      if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.setAttribute('aria-hidden', 'false');
+      }
+    }
+
+    document.getElementById('reward-picker-cancel').addEventListener('click', closeRewardPicker);
+    document.getElementById('reward-picker-overlay').addEventListener('click', function (e) {
+      if (e.target === this) closeRewardPicker();
+    });
+
+    document.getElementById('btn-done').addEventListener('click', function () {
+      var nextId = M.getNextTaskId(childId, M.getTodayKey());
+      if (nextId) markDone(nextId);
+    });
+
+    if (!childId) {
+      showWho();
+      document.getElementById('pick-kaia').addEventListener('click', function () {
+        setChildId('kaia');
+        childId = 'kaia';
+        if (Sync && Sync.isConfigured() && !Sync.getHouseholdId()) {
+          showPairing();
+          document.getElementById('join-household-btn').addEventListener('click', function () {
+            var code = (document.getElementById('household-code-input').value || '').trim().toLowerCase();
+            if (!code) { document.getElementById('pairing-status').textContent = 'Enter a code.'; return; }
+            if (Sync.setHouseholdId(code)) {
+              document.getElementById('pairing-status').textContent = 'Joined. Loading…';
+              showChecklist();
+              afterSyncLoad();
+            }
+          });
+          document.getElementById('household-code-input').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') document.getElementById('join-household-btn').click();
+          });
+        } else {
+          showChecklist();
+          afterSyncLoad();
+        }
+      });
+      document.getElementById('pick-judah').addEventListener('click', function () {
+        setChildId('judah');
+        childId = 'judah';
+        if (Sync && Sync.isConfigured() && !Sync.getHouseholdId()) {
+          showPairing();
+          document.getElementById('join-household-btn').addEventListener('click', function () {
+            var code = (document.getElementById('household-code-input').value || '').trim().toLowerCase();
+            if (!code) { document.getElementById('pairing-status').textContent = 'Enter a code.'; return; }
+            if (Sync.setHouseholdId(code)) {
+              document.getElementById('pairing-status').textContent = 'Joined. Loading…';
+              showChecklist();
+              afterSyncLoad();
+            }
+          });
+          document.getElementById('household-code-input').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') document.getElementById('join-household-btn').click();
+          });
+        } else {
+          showChecklist();
+          afterSyncLoad();
+        }
+      });
+    } else if (Sync && Sync.isConfigured() && !Sync.getHouseholdId()) {
+      showPairing();
+      document.getElementById('join-household-btn').addEventListener('click', function () {
+        const code = (document.getElementById('household-code-input').value || '').trim().toLowerCase();
+        if (!code) {
+          document.getElementById('pairing-status').textContent = 'Enter a code.';
+          return;
+        }
+        if (Sync.setHouseholdId(code)) {
+          document.getElementById('pairing-status').textContent = 'Joined. Loading…';
+          showChecklist();
+          afterSyncLoad();
+        }
+      });
+      document.getElementById('household-code-input').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') document.getElementById('join-household-btn').click();
+      });
+    } else {
+      document.title = (M.CHILD_NAMES[childId] || childId) + "'s Checklist";
+      showChecklist();
+      afterSyncLoad();
+    }
+
+    setInterval(function () { if (childId) render(); }, 10000);
+  </script>
+</body>
+</html>
